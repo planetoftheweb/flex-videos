@@ -333,7 +333,12 @@ function flex_videos_grid_shortcode($atts) {
     }
     $output_html .= '</div>';
     if ($show_grid_description === '1' && $channel_description) {
-        $output_html .= '<div class="flex-videos-grid-description" style="margin-top:10px;">' . esc_html($channel_description) . '</div>';
+        $desc = $channel_description;
+        $max_length = 250;
+        if (mb_strlen($desc) > $max_length) {
+            $desc = mb_substr($desc, 0, $max_length) . '…';
+        }
+        $output_html .= '<div class="flex-videos-grid-description" style="margin-top:10px;">' . esc_html($desc) . '</div>';
     }
     if ($show_channel_link === '1') {
         $output_html .= '<div class="flex-videos-channel-link" style="margin-top:10px;text-align:right;">';
