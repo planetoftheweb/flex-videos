@@ -242,18 +242,72 @@ add_action('wp_head', 'flex_videos_enqueue_css');
 function flex_videos_grid_shortcode($atts) {
     $api_key = get_option('flex_videos_api_key');
     $channel_id = get_option('flex_videos_channel_id');
-    $custom_title = get_option('flex_videos_custom_title', '');
-    $custom_description = get_option('flex_videos_custom_description', '');
     $show_channel_link = get_option('flex_videos_show_channel_link', '1');
     $rows = intval(get_option('flex_videos_rows', 3));
     $gap = intval(get_option('flex_videos_gap', 10));
-    $show_grid_title = get_option('flex_videos_show_grid_title', '1');
-    $show_grid_description = get_option('flex_videos_show_grid_description', '1');
-    $output_html = '';
-    $output_html .= '<div class="flex-videos-grid" style="--flex-videos-columns:' . $columns . '; --flex-videos-width:' . $width . '; gap:' . $gap . 'px;">';
+    $attributes = shortcode_atts([
+        'count' => 12,
+        'hashtag' => '',
+        'columns' => 3,
+        'width' => '320px',
+    ], $atts);
+    $columns = intval($attributes['columns']);
+    $width = esc_attr($attributes['width']);
+    $max_to_display = $columns * $rows;
+    $hashtag = sanitize_text_field($attributes['hashtag']);
+    $transient_key = 'flex_videos_search_cache_' . md5($hashtag);
+    $cached_data = get_transient($transient_key);
+    if (false === $cached_data) {
+        if (empty($hashtag)) {
+            $api_url = sprintf(
+                'https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=%s&order=date&type=video&maxResults=50&key=%s',
+                $channel_id,
+                $api_key
+            );
+        } else {
+            $search_query = urlencode($hashtag);
+            $api_url = sprintf(
+                'https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=%s&q=%s&order=date&type=video&maxResults=50&key=%s',
+                $channel_id,
+                $search_query,
+                $api_key
+            );
+        }
+        $response = wp_remote_get($api_url);
+        if (is_wp_error($response)) {
+            if (current_user_can('manage_options')) {
+                return 'Error: API request failed - ' . $response->get_error_message();
+            }
+            return '';
+        }
+        $response_code = wp_remote_retrieve_response_code($response);
+        if ($response_code !== 200) {
+            if (current_user_can('manage_options')) {
+                $response_body = wp_remote_retrieve_body($response);
+                $error_data = json_decode($response_body, true);
+                $error_message = $error_data['error']['message'] ?? 'Unknown API error';
+                return 'Error: YouTube API returned ' . $response_code . ' - ' . $error_message;
+            }
+            return '';
+        }
+        $api_data = json_decode(wp_remote_retrieve_body($response), true);
+        set_transient($transient_key, $api_data, HOUR_IN_SECONDS);
+        $videos = $api_data['items'] ?? [];
+    } else {
+        $videos = $cached_data['items'] ?? [];
+    }
+    if (empty($videos)) {
+        return '<p>No videos found for this channel.</p>';
+    }
+    $videos_to_display = array_slice($videos, 0, $max_to_display);
+    $output_html = '<div class="flex-videos-grid" style="--flex-videos-columns:' . $columns . '; --flex-videos-width:' . $width . '; gap:' . $gap . 'px;">';
     foreach ($videos_to_display as $video) {
+        if (!isset($video['id']['videoId'])) continue;
         $video_id = $video['id']['videoId'];
-        $thumb_url = esc_url($video['snippet']['thumbnails']['medium']['url']);
+        // Use the best available thumbnail
+        $thumbs = $video['snippet']['thumbnails'];
+        $thumb_url = isset($thumbs['medium']['url']) ? esc_url($thumbs['medium']['url']) : (isset($thumbs['default']['url']) ? esc_url($thumbs['default']['url']) : '');
+        if (!$thumb_url) continue;
         $video_url = 'https://www.youtube.com/watch?v=' . esc_attr($video_id);
         $output_html .= '<div class="flex-videos-item">';
         $output_html .= '<a href="' . $video_url . '" target="_blank" rel="noopener noreferrer">';
