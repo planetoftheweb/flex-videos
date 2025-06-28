@@ -37,7 +37,6 @@
 }
 
 /* Video Item Styles */
-.flex-video-item,
 .flex-videos-item {
     position: relative;
     background: #f9f9f9;
@@ -54,6 +53,17 @@
     box-shadow: 0 4px 12px rgba(0,0,0,.1);
     background: #000;
     transition: transform .3s, box-shadow .3s;
+    display: flex;
+    align-items: flex-start;
+}
+
+.flex-videos-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    border-radius: 8px;
 }
 
 /* Hide YouTube play button overlay to show thumbnails clearly */
@@ -174,7 +184,7 @@
     top: 0;
     left: 0;
     width: 350px;
-    background: rgba(0,0,0,0.95);
+    background: rgba(64, 64, 64, 0.95);
     color: #fff;
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.4);
@@ -186,8 +196,8 @@
     padding: 20px;
     display: none;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
+    align-items: flex-start;
+    text-align: left;
 }
 
 #flex-videos-flyout-overlay .flex-videos-overlay-thumb {
@@ -197,6 +207,9 @@
     border-radius: 8px;
     margin-bottom: 15px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    align-self: center;
+    object-fit: cover;
+    object-position: center;
 }
 
 #flex-videos-flyout-overlay .flex-videos-overlay-title {
@@ -205,13 +218,15 @@
     margin: 0 0 15px 0;
     line-height: 1.3;
     color: #fff;
+    width: 100%;
 }
 
 #flex-videos-flyout-overlay .flex-videos-overlay-desc {
-    font-size: 14px;
+    font-size: 16px;
     color: #ddd;
-    line-height: 1.4;
+    line-height: 1.5;
     margin: 0;
+    width: 100%;
 }
 
 /* Responsive Design */
