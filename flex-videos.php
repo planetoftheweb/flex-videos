@@ -209,6 +209,7 @@ function flex_videos_enqueue_css() {
       box-shadow: 0 4px 12px rgba(0,0,0,.1);
       background: #000;
       transition: transform .3s, box-shadow .3s;
+      position: relative;
     }
     .flex-videos-item:hover {
       transform: translateY(-5px);
@@ -219,6 +220,43 @@ function flex_videos_enqueue_css() {
       height: 100%;
       border: 0;
       display: block;
+    }
+    .flex-videos-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.7);
+      opacity: 0;
+      transition: opacity .3s;
+      padding: 10px;
+      border-radius: 12px;
+    }
+    .flex-videos-item:hover .flex-videos-overlay {
+      opacity: 1;
+    }
+    .flex-videos-overlay-thumb {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    .flex-videos-overlay-title {
+      color: #fff;
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 5px;
+      text-align: center;
+    }
+    .flex-videos-overlay-desc {
+      color: #ddd;
+      font-size: 14px;
+      text-align: center;
     }
     ';
     echo '<style id="flex-videos-css">' . $css . '</style>';
@@ -320,14 +358,26 @@ function flex_videos_grid_shortcode($atts) {
     foreach ($videos_to_display as $video) {
         if (!isset($video['id']['videoId'])) continue;
         $video_id = $video['id']['videoId'];
-        // Use the best available thumbnail
-        $thumbs = $video['snippet']['thumbnails'];
+        $snippet = $video['snippet'];
+        $title = isset($snippet['title']) ? esc_html($snippet['title']) : '';
+        $desc = isset($snippet['description']) ? $snippet['description'] : '';
+        $desc_max = 120;
+        if (mb_strlen($desc) > $desc_max) {
+            $desc = mb_substr($desc, 0, $desc_max) . '…';
+        }
+        $thumbs = $snippet['thumbnails'];
         $thumb_url = isset($thumbs['medium']['url']) ? esc_url($thumbs['medium']['url']) : (isset($thumbs['default']['url']) ? esc_url($thumbs['default']['url']) : '');
+        $large_thumb_url = isset($thumbs['high']['url']) ? esc_url($thumbs['high']['url']) : $thumb_url;
         if (!$thumb_url) continue;
         $video_url = 'https://www.youtube.com/watch?v=' . esc_attr($video_id);
         $output_html .= '<div class="flex-videos-item">';
         $output_html .= '<a href="' . $video_url . '" target="_blank" rel="noopener noreferrer">';
         $output_html .= '<img src="' . $thumb_url . '" alt="YouTube Video Thumbnail" style="width:100%;display:block;border-radius:8px;">';
+        $output_html .= '<div class="flex-videos-overlay">';
+        $output_html .= '<img class="flex-videos-overlay-thumb" src="' . $large_thumb_url . '" alt="Large Thumbnail">';
+        $output_html .= '<div class="flex-videos-overlay-title">' . $title . '</div>';
+        $output_html .= '<div class="flex-videos-overlay-desc">' . esc_html($desc) . '</div>';
+        $output_html .= '</div>';
         $output_html .= '</a>';
         $output_html .= '</div>';
     }
@@ -342,7 +392,7 @@ function flex_videos_grid_shortcode($atts) {
     }
     if ($show_channel_link === '1') {
         $output_html .= '<div class="flex-videos-channel-link" style="margin-top:10px;text-align:right;">';
-        $output_html .= '<a href="https://www.youtube.com/channel/' . esc_attr($channel_id) . '" target="_blank" rel="noopener noreferrer">Visit YouTube Channel</a>';
+        $output_html .= '<a href="https://www.youtube.com/channel/' . esc_attr($channel_id) . '" target="_blank" rel="noopener noreferrer">Visit Channel</a>';
         $output_html .= '</div>';
     }
     return $output_html;
