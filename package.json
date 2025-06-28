@@ -1,0 +1,17 @@
+{
+  "name": "flex_videos-plugin",
+  "description": "A simple WordPress plugin to add flexible, responsive video embeds.",
+  "version": "1.0.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/flex_videos-plugin.git"
+  },
+  "keywords": [
+    "wordpress",
+    "plugin",
+    "video",
+    "responsive",
+    "embed"
+  ]
+}
