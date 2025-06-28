@@ -247,6 +247,28 @@ function flex_videos_grid_shortcode($atts) {
     $hashtag = sanitize_text_field($attributes['hashtag']);
     $transient_key = 'flex_videos_search_cache_' . md5($hashtag);
     $cached_data = get_transient($transient_key);
+    // Fetch channel info (name and description)
+    $channel_info = get_transient('flex_videos_channel_info_' . $channel_id);
+    if ($channel_info === false && $api_key && $channel_id) {
+        $channel_api_url = sprintf(
+            'https://www.googleapis.com/youtube/v3/channels?part=snippet&id=%s&key=%s',
+            $channel_id,
+            $api_key
+        );
+        $channel_response = wp_remote_get($channel_api_url);
+        if (!is_wp_error($channel_response) && wp_remote_retrieve_response_code($channel_response) === 200) {
+            $channel_data = json_decode(wp_remote_retrieve_body($channel_response), true);
+            if (!empty($channel_data['items'][0]['snippet'])) {
+                $channel_info = [
+                    'title' => $channel_data['items'][0]['snippet']['title'],
+                    'description' => $channel_data['items'][0]['snippet']['description'],
+                ];
+                set_transient('flex_videos_channel_info_' . $channel_id, $channel_info, HOUR_IN_SECONDS);
+            }
+        }
+    }
+    $channel_title = $channel_info['title'] ?? 'Latest Videos';
+    $channel_description = $channel_info['description'] ?? '';
     if (false === $cached_data) {
         if (empty($hashtag)) {
             $api_url = sprintf(
@@ -292,7 +314,7 @@ function flex_videos_grid_shortcode($atts) {
     $videos_to_display = array_slice($videos, 0, $max_to_display);
     $output_html = '';
     if ($show_grid_title === '1') {
-        $output_html .= '<h2 class="wp-block-heading">Latest Videos</h2>';
+        $output_html .= '<h2 class="wp-block-heading">' . esc_html($channel_title) . '</h2>';
     }
     $output_html .= '<div class="flex-videos-grid" style="--flex-videos-columns:' . $columns . '; --flex-videos-width:' . $width . '; gap:' . $gap . 'px;">';
     foreach ($videos_to_display as $video) {
@@ -310,8 +332,8 @@ function flex_videos_grid_shortcode($atts) {
         $output_html .= '</div>';
     }
     $output_html .= '</div>';
-    if ($show_grid_description === '1') {
-        $output_html .= '<div class="flex-videos-grid-description" style="margin-top:10px;">Enjoy the latest videos from our channel.</div>';
+    if ($show_grid_description === '1' && $channel_description) {
+        $output_html .= '<div class="flex-videos-grid-description" style="margin-top:10px;">' . esc_html($channel_description) . '</div>';
     }
     if ($show_channel_link === '1') {
         $output_html .= '<div class="flex-videos-channel-link" style="margin-top:10px;text-align:right;">';
