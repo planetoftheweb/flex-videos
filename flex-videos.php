@@ -1,14 +1,18 @@
 <?php
 /**
  * Plugin Name:       Flex Videos
- * Plugin URI:        https://github.com/yourusername/flex-videos
- * Description:       Displays the latest YouTube videos from a channel, with an option to filter by a hashtag in the shortcode.
+ * Plugin URI:        https://github.com/rayvillalobos/flex-videos
+ * Description:       A professional WordPress plugin for displaying flexible, responsive video embeds with YouTube API integration.
  * Version:           1.0.1
- * Author:            Gemini
- * Author URI:        https://gemini.google.com/
- * License:           GPL-2.0-or-later
- * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * Author:            Ray Villalobos
+ * Author URI:        https://rayvillalobos.com/
+ * License:           MIT
+ * License URI:       https://opensource.org/licenses/MIT
  * Text Domain:       flex-videos
+ * Requires at least: 5.0
+ * Tested up to:      6.5
+ * Requires PHP:      7.4
+ * Network:           false
  */
 
 // Block direct access to the file.

@@ -1,0 +1,157 @@
+/**
+ * Flex Videos Plugin Styles
+ * 
+ * @package FlexVideos
+ * @version 1.0.1
+ */
+
+/* Video Grid Styles */
+.flex-videos-grid {
+    display: grid;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.flex-videos-grid.columns-1 {
+    grid-template-columns: 1fr;
+}
+
+.flex-videos-grid.columns-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.flex-videos-grid.columns-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.flex-videos-grid.columns-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.flex-videos-grid.columns-5 {
+    grid-template-columns: repeat(5, 1fr);
+}
+
+/* Video Item Styles */
+.flex-video-item {
+    position: relative;
+    background: #f9f9f9;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Hide YouTube play button overlay to show thumbnails clearly */
+.flex-video-item .ytp-large-play-button,
+.flex-video-item .ytp-play-button,
+.flex-video-item .ytp-cued-thumbnail-overlay,
+.flex-video-item .ytp-cued-thumbnail-overlay-image,
+.flex-video-item iframe[src*="youtube"] + .play-button,
+.flex-video-item .youtube-play-button {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+/* Ensure thumbnail images are fully visible */
+.flex-video-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.flex-video-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.flex-video-item iframe {
+    width: 100%;
+    height: auto;
+    border: none;
+}
+
+.flex-video-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.flex-video-title {
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    line-height: 1.4;
+}
+
+.flex-video-description {
+    padding: 0 15px 15px;
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .flex-videos-grid.columns-3,
+    .flex-videos-grid.columns-4,
+    .flex-videos-grid.columns-5 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .flex-videos-grid {
+        grid-template-columns: 1fr !important;
+        gap: 15px;
+    }
+    
+    .flex-video-title {
+        font-size: 14px;
+        padding: 12px;
+    }
+    
+    .flex-video-description {
+        font-size: 13px;
+        padding: 0 12px 12px;
+    }
+}
+
+/* Admin Styles */
+.flex-videos-admin {
+    max-width: 800px;
+}
+
+.flex-videos-admin .form-table th {
+    width: 200px;
+    padding-left: 0;
+}
+
+.flex-videos-admin .form-table td {
+    padding-left: 20px;
+}
+
+.flex-videos-admin input[type="text"] {
+    width: 400px;
+}
+
+.flex-videos-cache-info {
+    background: #f0f8ff;
+    border: 1px solid #b3d9ff;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 20px 0;
+}
+
+.flex-videos-cache-info h4 {
+    margin-top: 0;
+    color: #0073aa;
+}

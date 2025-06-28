@@ -1,17 +1,24 @@
 {
-  "name": "flex_videos-plugin",
-  "description": "A simple WordPress plugin to add flexible, responsive video embeds.",
-  "version": "1.0.0",
+  "name": "flex-videos",
+  "description": "A WordPress plugin for displaying flexible, responsive video embeds with YouTube API integration",
+  "version": "1.0.1",
   "license": "MIT",
+  "author": "Ray Villalobos",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/flex_videos-plugin.git"
+    "url": "https://github.com/rayvillalobos/flex-videos.git"
   },
+  "bugs": {
+    "url": "https://github.com/rayvillalobos/flex-videos/issues"
+  },
+  "homepage": "https://github.com/rayvillalobos/flex-videos#readme",
   "keywords": [
     "wordpress",
     "plugin",
     "video",
+    "youtube",
     "responsive",
-    "embed"
+    "embed",
+    "api"
   ]
 }

@@ -1,0 +1,79 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the Flex Videos package.
+# Ray Villalobos <your-email@example.com>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Flex Videos 1.0.1\n"
+"Report-Msgid-Bugs-To: https://github.com/yourusername/flex-videos/issues\n"
+"POT-Creation-Date: 2025-06-28 12:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: flex-videos.php:6
+msgid "Displays the latest YouTube videos from a channel, with an option to filter by a hashtag in the shortcode."
+msgstr ""
+
+#: flex-videos.php:21
+msgid "YouTube Videos Settings"
+msgstr ""
+
+#: flex-videos.php:21
+msgid "YouTube Videos"
+msgstr ""
+
+#: flex-videos.php:30
+msgid "API Configuration"
+msgstr ""
+
+#: flex-videos.php:37
+msgid "YouTube Data API Key"
+msgstr ""
+
+#: flex-videos.php:44
+msgid "YouTube Channel ID"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Reset Cache"
+msgstr ""
+
+msgid "Cache has been reset successfully."
+msgstr ""
+
+msgid "Error resetting cache."
+msgstr ""
+
+msgid "API Key"
+msgstr ""
+
+msgid "Channel ID"
+msgstr ""
+
+msgid "Save Changes"
+msgstr ""
+
+msgid "Video"
+msgstr ""
+
+msgid "Videos"
+msgstr ""
+
+msgid "Loading..."
+msgstr ""
+
+msgid "No videos found."
+msgstr ""
+
+msgid "Error loading videos."
+msgstr ""

@@ -1,0 +1,48 @@
+{
+    "name": "rayvillalobos/flex-videos",
+    "description": "A professional WordPress plugin for displaying flexible, responsive video embeds with YouTube API integration",
+    "type": "wordpress-plugin",
+    "license": "MIT",
+    "version": "1.0.1",
+    "authors": [
+        {
+            "name": "Ray Villalobos",
+            "email": "your-email@example.com"
+        }
+    ],
+    "keywords": [
+        "wordpress",
+        "plugin",
+        "video",
+        "youtube",
+        "responsive",
+        "embed"
+    ],        "homepage": "https://github.com/rayvillalobos/flex-videos",
+    "support": {
+        "issues": "https://github.com/rayvillalobos/flex-videos/issues",
+        "source": "https://github.com/rayvillalobos/flex-videos"
+    },
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0",
+        "wp-coding-standards/wpcs": "^2.3",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "FlexVideos\\": "includes/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "phpcs": "phpcs --standard=WordPress .",
+        "phpcbf": "phpcbf --standard=WordPress ."
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}
