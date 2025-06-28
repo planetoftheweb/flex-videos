@@ -359,29 +359,32 @@ function flex_videos_grid_shortcode($atts) {
         if (!isset($video['id']['videoId'])) continue;
         $video_id = $video['id']['videoId'];
         $snippet = $video['snippet'];
-        $title = isset($snippet['title']) ? esc_html($snippet['title']) : '';
+        $title = isset($snippet['title']) ? $snippet['title'] : '';
         $desc = isset($snippet['description']) ? $snippet['description'] : '';
         $desc_max = 120;
+        $title_max = 60;
         if (mb_strlen($desc) > $desc_max) {
             $desc = mb_substr($desc, 0, $desc_max) . '…';
         }
+        if (mb_strlen($title) > $title_max) {
+            $title = mb_substr($title, 0, $title_max) . '…';
+        }
+        $title = esc_html($title);
+        $desc = esc_html($desc);
         $thumbs = $snippet['thumbnails'];
         $thumb_url = isset($thumbs['medium']['url']) ? esc_url($thumbs['medium']['url']) : (isset($thumbs['default']['url']) ? esc_url($thumbs['default']['url']) : '');
         $large_thumb_url = isset($thumbs['high']['url']) ? esc_url($thumbs['high']['url']) : $thumb_url;
         if (!$thumb_url) continue;
         $video_url = 'https://www.youtube.com/watch?v=' . esc_attr($video_id);
-        $output_html .= '<div class="flex-videos-item">';
-        $output_html .= '<a href="' . $video_url . '" target="_blank" rel="noopener noreferrer">';
-        $output_html .= '<img src="' . $thumb_url . '" alt="YouTube Video Thumbnail" style="width:100%;display:block;border-radius:8px;">';
-        $output_html .= '<div class="flex-videos-overlay">';
-        $output_html .= '<img class="flex-videos-overlay-thumb" src="' . $large_thumb_url . '" alt="Large Thumbnail">';
-        $output_html .= '<div class="flex-videos-overlay-title">' . $title . '</div>';
-        $output_html .= '<div class="flex-videos-overlay-desc">' . esc_html($desc) . '</div>';
-        $output_html .= '</div>';
+        $output_html .= '<div class="flex-videos-item flex-videos-item-has-overlay" tabindex="0" data-title="' . esc_attr($title) . '" data-desc="' . esc_attr($desc) . '" data-thumb="' . esc_url($large_thumb_url) . '" data-url="' . esc_url($video_url) . '">';
+        $output_html .= '<a href="' . $video_url . '" target="_blank" rel="noopener noreferrer" class="flex-videos-thumb-link">';
+        $output_html .= '<img src="' . $thumb_url . '" alt="YouTube Video Thumbnail" class="flex-videos-thumb">';
         $output_html .= '</a>';
         $output_html .= '</div>';
     }
     $output_html .= '</div>';
+    // Overlay container (single, outside grid)
+    $output_html .= '<div id="flex-videos-flyout-overlay" style="display:none;position:fixed;z-index:99999;"></div>';
     if ($show_grid_description === '1' && $channel_description) {
         $desc = $channel_description;
         $max_length = 250;
@@ -520,3 +523,10 @@ function flex_videos_test_api_key() {
     }
 }
 add_action('admin_init', 'flex_videos_test_api_key');
+
+// Enqueue Flex Videos CSS and JS
+function flex_videos_enqueue_assets() {
+    wp_enqueue_style('flex-videos-css', plugins_url('assets/css/flex-videos.css', __FILE__), [], '1.0.1');
+    wp_enqueue_script('flex-videos-flyout', plugins_url('assets/js/flex-videos-flyout.js', __FILE__), [], '1.0.1', true);
+}
+add_action('wp_enqueue_scripts', 'flex_videos_enqueue_assets');
