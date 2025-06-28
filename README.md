@@ -6,8 +6,10 @@ A professional WordPress plugin for displaying flexible, responsive video embeds
 - 🎥 **YouTube API Integration** - Display latest videos from any channel
 - 📱 **Responsive Design** - Mobile-friendly video grids that look great on all devices
 - ⚡ **Performance Optimized** - Built-in caching and lazy loading for fast page loads
-- 🎨 **Customizable Layout** - Control columns, spacing, and video dimensions
-- 🔧 **Easy Configuration** - Simple admin interface for API setup
+- 🎨 **Customizable Layout** - Control columns, rows, spacing, and video dimensions
+- 📝 **Custom Titles & Descriptions** - Set your own title/description for thumbnails and single video
+- 🔗 **Channel Link Option** - Show or hide a link to your YouTube channel
+- 🔧 **Easy Configuration** - Simple admin interface for API setup and display options
 - 🌐 **Translation Ready** - Full internationalization support
 - 📊 **Analytics Integration** - Built-in click tracking for Google Analytics
 - 🛡️ **Secure & Standards Compliant** - Follows WordPress coding standards and security best practices
@@ -37,21 +39,17 @@ Then activate through WordPress admin.
 
 ## Configuration
 
-### YouTube API Setup
-1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select an existing one
-3. Navigate to **APIs & Services > Library**
-4. Search for and enable **YouTube Data API v3**
-5. Go to **APIs & Services > Credentials**
-6. Click **Create Credentials > API Key**
-7. Copy your API key for the next step
+Go to **Settings > Flex Videos** in your WordPress admin to configure:
 
-### WordPress Configuration
-1. In your WordPress admin, go to **Settings > YouTube Videos**
-2. Enter your YouTube API Key
-3. (Optional) Enter a specific YouTube Channel ID to display videos from
-4. Click **Save Changes**
-5. Test the configuration with a shortcode
+- **YouTube Data API Key** (required)
+- **YouTube Channel ID** (required)
+- **Custom Title for Thumbnails** (optional)
+- **Custom Description for Thumbnails** (optional)
+- **Show Channel Link** (default: on)
+- **Number of Rows (Grid)** (default: 3)
+- **Gap Between Thumbnails (px)** (default: 10)
+
+You can also test your API key and clear the plugin cache from this page.
 
 ## Usage
 
@@ -61,6 +59,7 @@ Then activate through WordPress admin.
 ```
 [flex_video url="https://www.youtube.com/watch?v=VIDEO_ID"]
 ```
+- Displays a single video, inline, with title and description (custom or from YouTube).
 
 **Video Grid from Channel:**
 ```
@@ -68,15 +67,19 @@ Then activate through WordPress admin.
 [flex_videos columns="4" width="300px"]
 [flex_videos hashtag="#tutorial" columns="3"]
 ```
+- Displays a grid of video thumbnails. Clicking a thumbnail opens the video on YouTube in a new tab.
+- The grid can show a single title above all thumbnails and a single description below the grid (both customizable and toggleable in settings).
 
 ### Shortcode Attributes
 
-| Attribute | Default | Description |
-|-----------|---------|-------------|
-| `columns` | `3` | Number of columns in the grid (1-5) |
-| `width` | `320px` | Maximum width of each video thumbnail |
-| `hashtag` | - | Filter videos by hashtag in description |
-| `count` | `12` | Maximum number of videos to display |
+| Attribute   | Default | Description |
+|-------------|---------|-------------|
+| `columns`   | `3`     | Number of columns in the grid (1-5) |
+| `rows`      | `3`     | Number of rows in the grid (overrides global setting) |
+| `width`     | `320px` | Maximum width of each video thumbnail |
+| `gap`       | `10`    | Space between thumbnails in pixels (overrides global setting) |
+| `hashtag`   | -       | Filter videos by hashtag in description |
+| `count`     | `12`    | Maximum number of videos to display |
 
 ### Advanced Examples
 
@@ -90,6 +93,13 @@ Then activate through WordPress admin.
 [flex_videos columns="1" width="100%"]
 ```
 
+## Display Behavior
+
+- **Grid:** Clicking a thumbnail opens the video on YouTube in a new tab (no inline play, no play overlay).
+- **Grid Title/Description:** A single title can be shown above the grid and a single description below the grid (both customizable and toggleable in settings; on by default).
+- **Single Video:** Plays inline and shows title/description (custom or from YouTube).
+- **Channel Link:** A link to your YouTube channel is shown below the grid by default (can be disabled in settings).
+
 ## Styling & Customization
 
 The plugin includes professional CSS styling that's automatically loaded. You can customize the appearance by adding CSS to your theme or using WordPress Customizer (**Appearance > Customize > Additional CSS**).
@@ -97,55 +107,60 @@ The plugin includes professional CSS styling that's automatically loaded. You ca
 ### Key CSS Classes
 
 ```css
-/* Main grid container */
 .flex-videos-grid {
   display: grid;
-  gap: 20px;
+  gap: var(--flex-videos-gap, 10px);
   margin: 20px 0;
 }
 
-/* Individual video items */
-.flex-video-item {
+.flex-videos-item {
   position: relative;
   background: #f9f9f9;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
+  margin: 0;
 }
 
-/* Hide play button overlays for clearer thumbnails */
-.flex-video-item .ytp-large-play-button,
-.flex-video-item .ytp-play-button {
-  display: none !important;
+.flex-videos-item img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
 }
 
-/* Hover effects */
-.flex-video-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-/* Video titles and descriptions */
 .flex-video-title {
-  padding: 15px;
-  font-size: 16px;
+  padding: 10px 10px 0 10px;
+  font-size: 15px;
   font-weight: 600;
   color: #333;
+  line-height: 1.4;
 }
 
 .flex-video-description {
-  padding: 0 15px 15px;
-  font-size: 14px;
+  padding: 0 10px 10px 10px;
+  font-size: 13px;
   color: #666;
+  line-height: 1.5;
+}
+
+.flex-videos-channel-link {
+  margin-top: 10px;
+  text-align: right;
+  font-size: 13px;
+}
+
+.flex-videos-channel-link a {
+  color: #0073aa;
+  text-decoration: underline;
 }
 ```
 
 ### Custom Color Scheme Example
 
 ```css
-/* Dark theme example */
-.flex-video-item {
+.flex-videos-item {
   background: #2c2c2c;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
@@ -204,8 +219,8 @@ flex-videos/
 ├── languages/            # Translation files
 ├── templates/            # Template files
 ├── flex-videos.php       # Main plugin file
-├── uninstall.php        # Cleanup script
-└── README.md            # This file
+├── uninstall.php         # Cleanup script
+└── README.md             # This file
 ```
 
 ## Troubleshooting
@@ -223,7 +238,7 @@ flex-videos/
 - Try clearing any caching plugins
 
 **Cache problems?**
-- Use the "Reset Cache" button in **Settings > YouTube Videos**
+- Use the "Clear Cache" button in **Settings > Flex Videos**
 - Clear any WordPress caching plugins
 
 ### Debug Mode

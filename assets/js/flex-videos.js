@@ -36,39 +36,9 @@
      * Hide YouTube play button overlays to show thumbnails clearly
      */
     function hidePlayButtonOverlays() {
-        // Hide play buttons on YouTube iframes
-        $('.flex-video-item iframe[src*="youtube"]').each(function() {
-            var $iframe = $(this);
-            
-            // Add parameters to hide controls and overlays
-            var src = $iframe.attr('src');
-            if (src && src.indexOf('controls=0') === -1) {
-                // Add parameters to minimize overlays
-                var separator = src.indexOf('?') !== -1 ? '&' : '?';
-                src += separator + 'controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1';
-                $iframe.attr('src', src);
-            }
-        });
-
-        // Hide any play button overlays that might appear
-        setInterval(function() {
-            $('.flex-video-item .ytp-large-play-button, .flex-video-item .ytp-cued-thumbnail-overlay').hide();
-        }, 1000);
-
-        // Use CSS to ensure play buttons stay hidden
-        if (!$('#hide-play-buttons-style').length) {
-            $('<style id="hide-play-buttons-style">')
-                .text(`
-                    .flex-video-item .ytp-large-play-button,
-                    .flex-video-item .ytp-play-button,
-                    .flex-video-item .ytp-cued-thumbnail-overlay {
-                        display: none !important;
-                        opacity: 0 !important;
-                        visibility: hidden !important;
-                    }
-                `)
-                .appendTo('head');
-        }
+        // Remove play overlays for grid thumbnails (no iframe in grid)
+        $('.flex-videos-item .ytp-large-play-button, .flex-videos-item .ytp-play-button, .flex-videos-item .ytp-cued-thumbnail-overlay').hide();
+        // For single video, allow play overlay (handled by YouTube)
     }
 
     /**
