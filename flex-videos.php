@@ -186,6 +186,10 @@ function flex_videos_channel_link_text_field_html() {
     echo '<input type="text" name="flex_videos_channel_link_text" value="' . esc_attr($val) . '" size="30">';
     echo '<p class="description">Customize the channel link text (default: Visit Channel). You can use {channel} to insert the channel name.</p>';
 }
+function flex_videos_show_grid_title_field_html() {
+    $show = get_option('flex_videos_show_grid_title', '1');
+    echo '<input type="checkbox" name="flex_videos_show_grid_title" value="1"' . checked($show, '1', false) . '> Show the grid title above the video grid.';
+}
 
 // Add cache clearing functionality
 function flex_videos_clear_cache() {
