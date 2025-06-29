@@ -1,5 +1,5 @@
 {
-    "name": "rayvillalobos/flex-videos",
+    "name": "planetoftheweb/flex-videos",
     "description": "A professional WordPress plugin for displaying flexible, responsive video embeds with YouTube API integration",
     "type": "wordpress-plugin",
     "license": "MIT",
@@ -7,7 +7,7 @@
     "authors": [
         {
             "name": "Ray Villalobos",
-            "email": "your-email@example.com"
+            "email": "ray@planetoftheweb.com"
         }
     ],
     "keywords": [
@@ -17,10 +17,10 @@
         "youtube",
         "responsive",
         "embed"
-    ],        "homepage": "https://github.com/rayvillalobos/flex-videos",
+    ],        "homepage": "https://github.com/planetoftheweb/flex-videos",
     "support": {
-        "issues": "https://github.com/rayvillalobos/flex-videos/issues",
-        "source": "https://github.com/rayvillalobos/flex-videos"
+        "issues": "https://github.com/planetoftheweb/flex-videos/issues",
+        "source": "https://github.com/planetoftheweb/flex-videos"
     },
     "require": {
         "php": ">=7.4"

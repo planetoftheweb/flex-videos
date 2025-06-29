@@ -1,325 +1,260 @@
 # Flex Videos
 
-A professional WordPress plugin for displaying flexible, responsive video embeds with YouTube API integration.
+A WordPress plugin for displaying responsive YouTube video grids with modern flyout overlays and customizable styling.
 
-## Highlights (v1.0.0)
-- ✨ Modern flyout overlay on hover: See full video details in a beautiful, left-aligned overlay with large thumbnail, title, and description.
-- 🖼️ Cropped thumbnails: Black bars from YouTube thumbnails are now cropped out for a cleaner grid.
-- 🟧 "Visit Channel" button: Now styled with a bold, orange-yellow gradient and modern sans-serif font for better visual integration.
-- 🧹 Tighter layout: Reduced extra space above/below the grid and in overlays for a more compact, professional look.
-- 🛠️ Cleaner markup: Removed unnecessary inner container divs for simpler, more semantic HTML.
-- 🪟 Overlay content is never clipped and always visible, even at viewport edges.
+## 🌟 Key Features
 
-## Features
-- 🎥 **YouTube API Integration** - Display latest videos from any channel
-- 📱 **Responsive Design** - Mobile-friendly video grids that look great on all devices
-- ⚡ **Performance Optimized** - Built-in caching and lazy loading for fast page loads
-- 🎨 **Customizable Layout** - Control columns, rows, spacing, and video dimensions
-- 🔗 **Channel Link Option** - Show or hide a link to your YouTube channel (now a bold, orange button)
-- 🔧 **Easy Configuration** - Simple admin interface for API setup and display options
-- 🌐 **Translation Ready** - Full internationalization support
-- 📊 **Analytics Integration** - Built-in click tracking for Google Analytics
-- 🛡️ **Secure & Standards Compliant** - Follows WordPress coding standards and security best practices
+- **🎥 YouTube Grid Display** - Show video thumbnails from any YouTube channel in a responsive grid
+- **✨ Modern Flyout Overlay** - Hover over thumbnails to see an animated overlay with full video details
+- **🎨 Customizable Button Colors** - Admin color pickers for channel link button styling
+- **📱 Responsive Design** - Looks great on all devices with configurable column layouts
+- **⚡ Built-in Caching** - API responses are cached for optimal performance
+- **🖼️ Clean Thumbnails** - CSS cropping removes YouTube's black bars automatically
+- **🛠️ WordPress Compatible** - Follows WordPress coding standards and best practices
 
-## Installation
+## ✨ What Makes It Special
 
-### Method 1: WordPress Admin (Recommended)
-1. Download the latest release as a ZIP file from the [Releases page](https://github.com/yourusername/flex-videos/releases)
-2. In your WordPress admin, go to **Plugins > Add New**
-3. Click **Upload Plugin** at the top
-4. Select the ZIP file and click **Install Now**
-5. Click **Activate Plugin**
-6. Proceed to the [Configuration](#configuration) section below
+### Smart Overlay System
+- **Fade-in animation** with smooth transitions
+- **Never clipped** - automatically repositions at viewport edges  
+- **Large thumbnail preview** with full title and description text
+- **Left-aligned layout** for consistent, professional appearance
 
-### Method 2: Manual Installation
+### Professional Grid Layout
+- **Semantic HTML** wrapped in `wp-block-group` for block theme compatibility
+- **Optimized spacing** with separate controls for grid gaps
+- **Cropped thumbnails** using `object-fit: cover` to remove black bars
+- **Configurable columns** (1-10 columns supported)
+
+### Admin-Friendly Customization
+- **Color picker controls** for button background, hover, and text colors
+- **Show/hide toggles** for grid title, description, and channel link
+- **Custom text options** for grid title, description, and button text
+- **Cache management** and settings reset tools for troubleshooting
+
+## 📥 Installation
+
+### WordPress Admin (Recommended)
+1. Download the latest release ZIP from [GitHub Releases](https://github.com/planetoftheweb/flex-videos/releases)
+2. Go to **Plugins > Add New** in WordPress admin
+3. Click **Upload Plugin** and select the ZIP file
+4. Click **Install Now**, then **Activate Plugin**
+
+### Manual Installation
 1. Download and extract the plugin files
-2. Upload the entire `flex-videos` folder to `/wp-content/plugins/`
-3. Activate the plugin through the WordPress admin **Plugins** menu
-4. Proceed to the [Configuration](#configuration) section below
+2. Upload the `flex-videos` folder to `/wp-content/plugins/`
+3. Activate through the **Plugins** menu in WordPress admin
 
-### Method 3: GitHub (Development)
+### Development Installation
 ```bash
 cd /wp-content/plugins/
-git clone https://github.com/yourusername/flex-videos.git
+git clone https://github.com/planetoftheweb/flex-videos.git
 ```
-Then activate through WordPress admin.
 
-## Configuration
+## ⚙️ Configuration
 
-Go to **Settings > Flex Videos** in your WordPress admin to configure:
+Go to **Settings > Flex Videos** in WordPress admin:
 
-- **YouTube Data API Key** (required)
-- **YouTube Channel ID** (required)
-- **Custom Title for Thumbnails** (optional)
-- **Custom Description for Thumbnails** (optional)
-- **Show Channel Link** (default: on)
-- **Number of Rows (Grid)** (default: 3)
-- **Gap Between Thumbnails (px)** (default: 10)
+### 🔑 API Configuration (Required)
+- **YouTube Data API Key** - Get free key from [Google Cloud Console](https://console.cloud.google.com/)
+- **YouTube Channel ID** - Find at [YouTube Advanced Settings](https://www.youtube.com/account_advanced)
 
-You can also test your API key and clear the plugin cache from this page.
+### 🎛️ Grid Display Options
+- **Number of Columns** (1-10, default: 3)
+- **Gap Between Thumbnails** (pixels, default: 15)
+- **Number of Videos to Show** (1-50, default: 9)
 
-## Usage
+### 📝 Content Options
+- **Show Grid Title** (checkbox, default: enabled)
+- **Show Grid Description** (checkbox, default: enabled)  
+- **Custom Grid Title** (optional override text)
+- **Custom Grid Description** (optional override text)
 
-### Basic Shortcodes
+### 🔗 Channel Link Options
+- **Show Channel Link** (checkbox, default: enabled)
+- **Channel Link Text** (default: "Visit Channel", supports `{channel}` placeholder)
+- **Button Background Color** (color picker, default: orange)
+- **Button Hover Color** (color picker, default: darker orange)
+- **Button Text Color** (color picker, default: white)
 
-**Single Video Embed:**
+### 🛠️ Admin Tools
+- **Test API Key** - Verify your YouTube API connection
+- **Clear Cache** - Remove cached API responses
+- **Reset Plugin Settings** - Restore all settings to defaults
+
+## 🚀 Usage
+
+### Video Grid Shortcode
+
+Display videos from your configured YouTube channel:
+
+```
+[flex_videos]
+```
+
+#### Shortcode Attributes
+
+| Attribute | Default | Description |
+|-----------|---------|-------------|
+| `columns` | `3` | Number of columns (1-10) |
+| `count` | `9` | Number of videos to display (1-50) |
+| `gap` | `15` | Space between thumbnails in pixels |
+| `hashtag` | - | Filter videos containing hashtag in description |
+
+#### Examples
+
+**Basic 3-column grid:**
+```
+[flex_videos]
+```
+
+**4-column grid with 12 videos:**
+```
+[flex_videos columns="4" count="12"]
+```
+
+**Tutorial videos only:**
+```
+[flex_videos hashtag="#tutorial" columns="2" count="6"]
+```
+
+**Mobile-friendly single column:**
+```
+[flex_videos columns="1"]
+```
+
+**Large grid with custom spacing:**
+```
+[flex_videos columns="4" count="16" gap="20"]
+```
+
+### Single Video Embed
+
+Embed individual videos with inline playback:
+
 ```
 [flex_video url="https://www.youtube.com/watch?v=VIDEO_ID"]
 ```
-- Displays a single video, inline, with title and description (custom or from YouTube).
 
-**Video Grid from Channel:**
-```
-[flex_videos]
-[flex_videos columns="4" width="300px"]
-[flex_videos hashtag="#tutorial" columns="3"]
-```
-- Displays a grid of video thumbnails. Clicking a thumbnail opens the video on YouTube in a new tab.
-- The grid can show a single title above all thumbnails and a single description below the grid (both customizable and toggleable in settings).
+Supports both YouTube and Vimeo URLs. Automatically fetches title and description from the video API.
 
-### Shortcode Attributes
+## 🎨 Visual Behavior
 
-| Attribute   | Default | Description |
-|-------------|---------|-------------|
-| `columns`   | `3`     | Number of columns in the grid (1-5) |
-| `rows`      | `3`     | Number of rows in the grid (overrides global setting) |
-| `width`     | `320px` | Maximum width of each video thumbnail |
-| `gap`       | `10`    | Space between thumbnails in pixels (overrides global setting) |
-| `hashtag`   | -       | Filter videos by hashtag in description |
-| `count`     | `12`    | Maximum number of videos to display |
+### Grid Display
+- **Thumbnails only** in the grid layout (clean, minimal appearance)
+- **Click to open** video on YouTube in new tab (no inline playback in grid)
+- **Hover overlay** shows large thumbnail, full title, and description
+- **Smooth animations** with fade-in and brightness effects
 
-### Advanced Examples
+### Grid Content
+- **Single title** above the entire grid (customizable, toggle-able)
+- **Single description** below the grid title (customizable, toggle-able)
+- **Channel link button** below the grid (customizable colors and text)
 
-**Tutorial Videos Grid:**
-```
-[flex_videos hashtag="#tutorial" columns="2" width="400px" count="6"]
-```
+### Overlay Details
+- **Large thumbnail** (higher resolution than grid)
+- **Full video title** (not truncated)
+- **Complete description** with proper text wrapping
+- **Smart positioning** - never gets clipped at screen edges
 
-**Mobile-Optimized Layout:**
-```
-[flex_videos columns="1" width="100%"]
-```
+## 🎨 Button Customization
 
-## Display Behavior
-
-- **Grid:** Clicking a thumbnail opens the video on YouTube in a new tab (no inline play, no play overlay). Only the thumbnail is shown in the grid; title/description are shown in the overlay on hover.
-- **Grid Title/Description:** A single title can be shown above the grid and a single description below the grid (both customizable and toggleable in settings; on by default).
-- **Single Video:** Plays inline and shows title/description (custom or from YouTube).
-- **Channel Link:** A bold, orange button linking to your YouTube channel is shown below the grid by default (can be disabled in settings).
-
-## Styling & Customization
-
-The plugin includes professional CSS styling that's automatically loaded. You can customize the appearance through the admin settings or by adding CSS to your theme.
-
-### Button Colors (Admin Settings)
-
-The easiest way to customize the "Visit Channel" button colors is through the WordPress admin:
+The easiest way to customize the "Visit Channel" button appearance is through the WordPress admin:
 
 1. Go to **Settings → Flex Videos**
-2. Scroll down to **Channel Link Options** section  
-3. Use the color pickers to customize button background, hover, and text colors
-4. Click **Save Settings**
+2. Scroll to **Channel Link Options**
+3. Use the color pickers for background, hover, and text colors
+4. Save settings
 
-### Advanced CSS Customization
+The plugin handles all styling automatically based on your color choices.
 
-For advanced styling, you can add CSS to your theme or use WordPress Customizer (**Appearance > Customize > Additional CSS**).
-
-### Key CSS Classes
-
-```css
-.flex-videos-grid {
-  display: grid;
-  gap: var(--flex-videos-gap, 10px);
-  margin: 10px 0;
-}
-
-.flex-videos-item {
-  position: relative;
-  background: transparent;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,.1);
-  transition: transform .3s, box-shadow .3s;
-}
-
-.flex-videos-item img,
-.flex-videos-thumb {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  border-radius: 12px;
-  background: transparent;
-  transform: scale(1.05); /* Crops black bars */
-}
-
-.flex-videos-channel-link a {
-  background: linear-gradient(135deg, #ff8c00, #ffa500);
-  color: #fff;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-weight: 700;
-  text-transform: uppercase;
-  border-radius: 8px;
-  padding: 12px 20px;
-  letter-spacing: 0.5px;
-}
-
-#flex-videos-flyout-overlay {
-  position: fixed;
-  z-index: 999999;
-  background: rgba(64,64,64,0.95);
-  border-radius: 12px;
-  padding: 15px;
-  left: 0; top: 0;
-  width: 350px;
-  display: none;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-}
-```
-
-### Custom Color Scheme Example
-
-```css
-.flex-videos-item {
-  background: #2c2c2c;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.flex-video-title {
-  color: #ffffff;
-}
-
-.flex-video-description {
-  color: #cccccc;
-}
-```
-
-## Requirements
+## 🔧 Technical Requirements
 
 - **WordPress:** 5.0 or higher
-- **PHP:** 7.4 or higher
+- **PHP:** 7.4 or higher  
 - **YouTube Data API v3 Key** (free from Google Cloud Console)
 
-## Performance Features
+## ⚡ Performance Features
 
-- ⚡ **Caching System** - API responses cached for improved load times
-- 🚀 **Lazy Loading** - Videos load only when visible
-- 📱 **Responsive Images** - Optimized thumbnails for different screen sizes
-- 🔄 **Background Processing** - Non-blocking API requests
-- 👁️ **Clean Thumbnails** - Play button overlays hidden for better thumbnail visibility
+- **Smart caching** - API responses cached with WordPress transients
+- **Optimized images** - Proper thumbnail sizing and lazy loading ready
+- **Clean markup** - Semantic HTML with minimal inline styles
+- **Background processing** - Non-blocking API requests
+- **Efficient CSS** - External stylesheet with CSS custom properties
 
-## Development
-
-### Local Development Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/flex-videos.git
-cd flex-videos
-
-# Install PHP dependencies
-composer install
-
-# Install Node.js dependencies (if added)
-npm install
-
-# Run code quality checks
-composer run phpcs
-```
-
-### File Structure
-
-```
-flex-videos/
-├── assets/
-│   ├── css/              # Stylesheets
-│   ├── js/               # JavaScript files
-│   └── images/           # Plugin assets
-├── includes/             # PHP classes and functions
-├── languages/            # Translation files
-├── templates/            # Template files
-├── flex-videos.php       # Main plugin file
-├── uninstall.php         # Cleanup script
-└── README.md             # This file
-```
-
-## Troubleshooting
+## 🛠️ Troubleshooting
 
 ### Common Issues
 
-**Videos not loading?**
-- Verify your YouTube API key is correct
-- Check that YouTube Data API v3 is enabled in Google Cloud Console
-- Ensure your API key has proper permissions
+**Videos not displaying?**
+- Check your YouTube API key is valid
+- Verify YouTube Data API v3 is enabled in Google Cloud Console  
+- Use the "Test API Key" button in plugin settings
+- Ensure your channel ID is correct (starts with UC...)
 
-**Styling issues?**
+**Styling problems?**
 - Check for theme conflicts
-- Verify CSS is loading properly
-- Try clearing any caching plugins
+- Clear any caching plugins
+- Verify CSS is loading (check browser developer tools)
 
-**Cache problems?**
-- Use the "Clear Cache" button in **Settings > Flex Videos**
-- Clear any WordPress caching plugins
+**Performance issues?**
+- Use the "Clear Cache" button to refresh API data
+- Reduce the number of videos displayed
+- Check for plugin conflicts
 
-### Debug Mode
+**Settings not saving?**
+- Try the "Reset Plugin Settings" button
+- Check file permissions in WordPress
+- Look for JavaScript errors in browser console
 
-Add this to your `wp-config.php` for detailed error logging:
+### Debug Information
+
+Enable WordPress debug logging in `wp-config.php`:
 ```php
 define('WP_DEBUG', true);
 define('WP_DEBUG_LOG', true);
 ```
 
-## Contributing
+## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+Contributions are welcome! Please see our [Contributing Guidelines](CONTRIBUTING.md).
 
-### Quick Start for Contributors
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes
-4. Run tests: `composer run test`
-5. Check code standards: `composer run phpcs`
-6. Commit your changes: `git commit -m 'Add amazing feature'`
-7. Push to the branch: `git push origin feature/amazing-feature`
-8. Open a Pull Request
-
-### Development Commands
+### Development Setup
 
 ```bash
-# Check PHP code standards
+# Clone repository
+git clone https://github.com/planetoftheweb/flex-videos.git
+cd flex-videos
+
+# Install dependencies
+composer install
+npm install
+
+# Run code standards check
 composer run phpcs
-
-# Fix code standards automatically
-composer run phpcbf
-
-# Run tests
-composer run test
 ```
 
-## Changelog
+## 📝 Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for a detailed history of changes.
+See [CHANGELOG.md](CHANGELOG.md) for version history and detailed changes.
 
-## Support
+## 📄 License
 
-- 📖 **Documentation:** [GitHub Wiki](https://github.com/yourusername/flex-videos/wiki)
-- 🐛 **Bug Reports:** [GitHub Issues](https://github.com/yourusername/flex-videos/issues)
-- 💬 **Discussions:** [GitHub Discussions](https://github.com/yourusername/flex-videos/discussions)
-- 📧 **Email:** your-email@example.com
+GPL-2.0-or-later - see [LICENSE](LICENSE) file for details.
 
-## License
-
-This project is licensed under the GPL-2.0-or-later License - see the [LICENSE](LICENSE) file for details.
-
-## Credits
+## 👨‍💻 Author & Support
 
 - **Author:** Ray Villalobos
-- **Contributors:** See [Contributors](https://github.com/yourusername/flex-videos/contributors)
-- **YouTube Data API:** Google LLC
+- **Website:** [Planet of the Web](https://planetoftheweb.com)
+- **GitHub:** [planetoftheweb](https://github.com/planetoftheweb)
+
+### Get Help
+
+- 📖 **Documentation:** [GitHub Wiki](https://github.com/planetoftheweb/flex-videos/wiki)
+- 🐛 **Bug Reports:** [GitHub Issues](https://github.com/planetoftheweb/flex-videos/issues)  
+- 💬 **Discussions:** [GitHub Discussions](https://github.com/planetoftheweb/flex-videos/discussions)
+- 📧 **Email:** ray@planetoftheweb.com
 
 ---
 
-⭐ **If you find this plugin helpful, please star the repository!**
+⭐ **If this plugin helps you, please star the repository!**

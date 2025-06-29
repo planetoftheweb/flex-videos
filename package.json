@@ -6,12 +6,12 @@
   "author": "Ray Villalobos",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rayvillalobos/flex-videos.git"
+    "url": "https://github.com/planetoftheweb/flex-videos.git"
   },
   "bugs": {
-    "url": "https://github.com/rayvillalobos/flex-videos/issues"
+    "url": "https://github.com/planetoftheweb/flex-videos/issues"
   },
-  "homepage": "https://github.com/rayvillalobos/flex-videos#readme",
+  "homepage": "https://github.com/planetoftheweb/flex-videos#readme",
   "keywords": [
     "wordpress",
     "plugin",

@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name:       Flex Videos
- * Plugin URI:        https://github.com/rayvillalobos/flex-videos
- * Description:       A professional WordPress plugin for displaying flexible, responsive video embeds with YouTube API integration.
+ * Plugin URI:        https://github.com/planetoftheweb/flex-videos
+ * Description:       A WordPress plugin for displaying flexible, responsive video embeds with YouTube API integration.
  * Version:           1.0.0
  * Author:            Ray Villalobos
  * Author URI:        https://itsplaitime.com/
@@ -186,9 +186,9 @@ function flex_videos_columns_field_html() {
     echo '<p class="description">Number of columns to display in the grid (default: 3).</p>';
 }
 function flex_videos_gap_field_html() {
-    $gap = get_option('flex_videos_gap', 10);
+    $gap = get_option('flex_videos_gap', 15);
     echo '<input type="number" name="flex_videos_gap" value="' . esc_attr($gap) . '" min="0" max="100"> px';
-    echo '<p class="description">Space between thumbnails in pixels (default: 10).</p>';
+    echo '<p class="description">Space between thumbnails in pixels (default: 15).</p>';
 }
 function flex_videos_num_videos_field_html() {
     $num = get_option('flex_videos_num_videos', 9);
@@ -326,7 +326,7 @@ function flex_videos_grid_shortcode($atts) {
     $channel_id = get_option('flex_videos_channel_id');
     $show_channel_link = get_option('flex_videos_show_channel_link', '1');
     $columns = intval(get_option('flex_videos_columns', 3));
-    $gap = intval(get_option('flex_videos_gap', 10));
+    $gap = intval(get_option('flex_videos_gap', 15));
     $show_grid_title = get_option('flex_videos_show_grid_title', '1');
     $show_grid_description = get_option('flex_videos_show_grid_description', '1');
     $num_videos = intval(get_option('flex_videos_num_videos', 9));
@@ -426,7 +426,7 @@ function flex_videos_grid_shortcode($atts) {
         $snippet = $video['snippet'];
         $title = isset($snippet['title']) ? $snippet['title'] : '';
         $desc = isset($snippet['description']) ? $snippet['description'] : '';
-        $desc_max = 50; // Reduced from 80 for more trimming
+        $desc_max = 90; // Increased from 50 for less truncation
         $title_max = 60;
         if (mb_strlen($desc) > $desc_max) {
             $desc = mb_substr($desc, 0, $desc_max) . '…';
