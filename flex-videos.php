@@ -28,77 +28,116 @@ function flex_videos_add_admin_menu() {
 add_action('admin_menu', 'flex_videos_add_admin_menu');
 
 function flex_videos_settings_init() {
-    register_setting('flex_videos_settings_group', 'flex_videos_api_key');
-    register_setting('flex_videos_settings_group', 'flex_videos_channel_id');
-    register_setting('flex_videos_settings_group', 'flex_videos_show_channel_link');
-    register_setting('flex_videos_settings_group', 'flex_videos_rows');
-    register_setting('flex_videos_settings_group', 'flex_videos_columns');
-    register_setting('flex_videos_settings_group', 'flex_videos_gap');
-    register_setting('flex_videos_settings_group', 'flex_videos_show_grid_title');
-    register_setting('flex_videos_settings_group', 'flex_videos_show_grid_description');
-
+    // API Section
     add_settings_section(
-        'flex_videos_settings_section',
-        'API & Display Configuration',
+        'flex_videos_api_section',
+        'YouTube API Configuration',
         null,
         'flex_videos_settings_group'
     );
-
+    register_setting('flex_videos_settings_group', 'flex_videos_api_key');
+    register_setting('flex_videos_settings_group', 'flex_videos_channel_id');
     add_settings_field(
         'flex_videos_api_key',
         'YouTube Data API Key',
         'flex_videos_api_key_field_html',
         'flex_videos_settings_group',
-        'flex_videos_settings_section'
+        'flex_videos_api_section'
     );
     add_settings_field(
         'flex_videos_channel_id',
         'YouTube Channel ID',
         'flex_videos_channel_id_field_html',
         'flex_videos_settings_group',
-        'flex_videos_settings_section'
+        'flex_videos_api_section'
     );
-    add_settings_field(
-        'flex_videos_show_channel_link',
-        'Show Channel Link',
-        'flex_videos_show_channel_link_field_html',
-        'flex_videos_settings_group',
-        'flex_videos_settings_section'
+
+    // Display Section
+    add_settings_section(
+        'flex_videos_display_section',
+        'Grid Display Options',
+        null,
+        'flex_videos_settings_group'
     );
-    add_settings_field(
-        'flex_videos_rows',
-        'Number of Rows (Grid)',
-        'flex_videos_rows_field_html',
-        'flex_videos_settings_group',
-        'flex_videos_settings_section'
-    );
+    register_setting('flex_videos_settings_group', 'flex_videos_columns');
+    register_setting('flex_videos_settings_group', 'flex_videos_gap');
+    register_setting('flex_videos_settings_group', 'flex_videos_show_grid_title');
+    register_setting('flex_videos_settings_group', 'flex_videos_show_grid_description');
+    register_setting('flex_videos_settings_group', 'flex_videos_num_videos');
+    register_setting('flex_videos_settings_group', 'flex_videos_custom_grid_title');
+    register_setting('flex_videos_settings_group', 'flex_videos_custom_grid_desc');
     add_settings_field(
         'flex_videos_columns',
         'Number of Columns (Grid)',
         'flex_videos_columns_field_html',
         'flex_videos_settings_group',
-        'flex_videos_settings_section'
+        'flex_videos_display_section'
     );
     add_settings_field(
         'flex_videos_gap',
         'Gap Between Thumbnails (px)',
         'flex_videos_gap_field_html',
         'flex_videos_settings_group',
-        'flex_videos_settings_section'
+        'flex_videos_display_section'
+    );
+    add_settings_field(
+        'flex_videos_num_videos',
+        'Number of Videos to Show',
+        'flex_videos_num_videos_field_html',
+        'flex_videos_settings_group',
+        'flex_videos_display_section'
     );
     add_settings_field(
         'flex_videos_show_grid_title',
         'Show Grid Title',
         'flex_videos_show_grid_title_field_html',
         'flex_videos_settings_group',
-        'flex_videos_settings_section'
+        'flex_videos_display_section'
+    );
+    add_settings_field(
+        'flex_videos_custom_grid_title',
+        'Custom Grid Title',
+        'flex_videos_custom_grid_title_field_html',
+        'flex_videos_settings_group',
+        'flex_videos_display_section'
     );
     add_settings_field(
         'flex_videos_show_grid_description',
         'Show Grid Description',
         'flex_videos_show_grid_description_field_html',
         'flex_videos_settings_group',
-        'flex_videos_settings_section'
+        'flex_videos_display_section'
+    );
+    add_settings_field(
+        'flex_videos_custom_grid_desc',
+        'Custom Grid Description',
+        'flex_videos_custom_grid_desc_field_html',
+        'flex_videos_settings_group',
+        'flex_videos_display_section'
+    );
+
+    // Channel Link Section
+    add_settings_section(
+        'flex_videos_channel_section',
+        'Channel Link Options',
+        null,
+        'flex_videos_settings_group'
+    );
+    register_setting('flex_videos_settings_group', 'flex_videos_show_channel_link');
+    register_setting('flex_videos_settings_group', 'flex_videos_channel_link_text');
+    add_settings_field(
+        'flex_videos_show_channel_link',
+        'Show Channel Link',
+        'flex_videos_show_channel_link_field_html',
+        'flex_videos_settings_group',
+        'flex_videos_channel_section'
+    );
+    add_settings_field(
+        'flex_videos_channel_link_text',
+        'Channel Link Text',
+        'flex_videos_channel_link_text_field_html',
+        'flex_videos_settings_group',
+        'flex_videos_channel_section'
     );
 }
 add_action('admin_init', 'flex_videos_settings_init');
@@ -117,11 +156,6 @@ function flex_videos_show_channel_link_field_html() {
     $show = get_option('flex_videos_show_channel_link', '1');
     echo '<input type="checkbox" name="flex_videos_show_channel_link" value="1"' . checked($show, '1', false) . '> Show a link to the YouTube channel below the grid.';
 }
-function flex_videos_rows_field_html() {
-    $rows = get_option('flex_videos_rows', 3);
-    echo '<input type="number" name="flex_videos_rows" value="' . esc_attr($rows) . '" min="1" max="10">';
-    echo '<p class="description">Number of rows to display in the grid (default: 3).</p>';
-}
 function flex_videos_columns_field_html() {
     $columns = get_option('flex_videos_columns', 3);
     echo '<input type="number" name="flex_videos_columns" value="' . esc_attr($columns) . '" min="1" max="10">';
@@ -132,13 +166,25 @@ function flex_videos_gap_field_html() {
     echo '<input type="number" name="flex_videos_gap" value="' . esc_attr($gap) . '" min="0" max="100"> px';
     echo '<p class="description">Space between thumbnails in pixels (default: 10).</p>';
 }
-function flex_videos_show_grid_title_field_html() {
-    $show = get_option('flex_videos_show_grid_title', '1');
-    echo '<input type="checkbox" name="flex_videos_show_grid_title" value="1"' . checked($show, '1', false) . '> Show the grid title above the thumbnails.';
+function flex_videos_num_videos_field_html() {
+    $num = get_option('flex_videos_num_videos', 9);
+    echo '<input type="number" name="flex_videos_num_videos" value="' . esc_attr($num) . '" min="1" max="50">';
+    echo '<p class="description">Number of videos to show in the grid (default: 9).</p>';
 }
-function flex_videos_show_grid_description_field_html() {
-    $show = get_option('flex_videos_show_grid_description', '1');
-    echo '<input type="checkbox" name="flex_videos_show_grid_description" value="1"' . checked($show, '1', false) . '> Show the grid description below the thumbnails.';
+function flex_videos_custom_grid_title_field_html() {
+    $val = get_option('flex_videos_custom_grid_title', '');
+    echo '<input type="text" name="flex_videos_custom_grid_title" value="' . esc_attr($val) . '" size="50">';
+    echo '<p class="description">Override the grid title with your own text (optional).</p>';
+}
+function flex_videos_custom_grid_desc_field_html() {
+    $val = get_option('flex_videos_custom_grid_desc', '');
+    echo '<textarea name="flex_videos_custom_grid_desc" rows="2" cols="50>' . esc_textarea($val) . '</textarea>';
+    echo '<p class="description">Override the grid description with your own text (optional).</p>';
+}
+function flex_videos_channel_link_text_field_html() {
+    $val = get_option('flex_videos_channel_link_text', 'Visit Channel');
+    echo '<input type="text" name="flex_videos_channel_link_text" value="' . esc_attr($val) . '" size="30">';
+    echo '<p class="description">Customize the channel link text (default: Visit Channel). You can use {channel} to insert the channel name.</p>';
 }
 
 // Add cache clearing functionality
@@ -159,7 +205,6 @@ function flex_videos_settings_page_html() {
     ?>
     <div class="wrap">
         <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
-        <p>This plugin uses the YouTube Data API to find and display the latest videos from your channel.</p>
         <form action="options.php" method="post">
             <?php
             settings_fields('flex_videos_settings_group');
@@ -196,20 +241,25 @@ function flex_videos_grid_shortcode($atts) {
     $api_key = get_option('flex_videos_api_key');
     $channel_id = get_option('flex_videos_channel_id');
     $show_channel_link = get_option('flex_videos_show_channel_link', '1');
-    $rows = intval(get_option('flex_videos_rows', 3));
     $columns = intval(get_option('flex_videos_columns', 3));
     $gap = intval(get_option('flex_videos_gap', 10));
     $show_grid_title = get_option('flex_videos_show_grid_title', '1');
     $show_grid_description = get_option('flex_videos_show_grid_description', '1');
+    $num_videos = intval(get_option('flex_videos_num_videos', 9));
+    $custom_grid_title = trim(get_option('flex_videos_custom_grid_title', ''));
+    $custom_grid_desc = trim(get_option('flex_videos_custom_grid_desc', ''));
+    $channel_link_text = trim(get_option('flex_videos_channel_link_text', 'Visit Channel'));
     $attributes = shortcode_atts([
-        'count' => 12,
+        'count' => $num_videos,
         'hashtag' => '',
         'columns' => $columns,
         'width' => '320px',
+        'gap' => $gap,
     ], $atts);
     $columns = intval($attributes['columns']);
     $width = esc_attr($attributes['width']);
-    $max_to_display = $columns * $rows;
+    $gap = intval($attributes['gap']);
+    $max_to_display = intval($attributes['count']);
     $hashtag = sanitize_text_field($attributes['hashtag']);
     $transient_key = 'flex_videos_search_cache_' . md5($hashtag);
     $cached_data = get_transient($transient_key);
@@ -228,6 +278,7 @@ function flex_videos_grid_shortcode($atts) {
                 $channel_info = [
                     'title' => $channel_data['items'][0]['snippet']['title'],
                     'description' => $channel_data['items'][0]['snippet']['description'],
+                    'customUrl' => $channel_data['items'][0]['snippet']['customUrl'] ?? '',
                 ];
                 set_transient('flex_videos_channel_info_' . $channel_id, $channel_info, HOUR_IN_SECONDS);
             }
@@ -235,6 +286,7 @@ function flex_videos_grid_shortcode($atts) {
     }
     $channel_title = $channel_info['title'] ?? 'Latest Videos';
     $channel_description = $channel_info['description'] ?? '';
+    $channel_custom_url = $channel_info['customUrl'] ?? '';
     if (false === $cached_data) {
         if (empty($hashtag)) {
             $api_url = sprintf(
@@ -280,7 +332,8 @@ function flex_videos_grid_shortcode($atts) {
     $videos_to_display = array_slice($videos, 0, $max_to_display);
     $output_html = '<div class="wp-block-group flex-videos-wrapper">';
     if ($show_grid_title === '1') {
-        $output_html .= '<h2 class="wp-block-heading">' . esc_html($channel_title) . '</h2>';
+        $title = $custom_grid_title !== '' ? $custom_grid_title : $channel_title;
+        $output_html .= '<h2 class="wp-block-heading">' . esc_html($title) . '</h2>';
     }
     $output_html .= '<div class="flex-videos-grid" style="--flex-videos-columns:' . $columns . '; --flex-videos-width:' . $width . '; gap:' . $gap . 'px;">';
     foreach ($videos_to_display as $video) {
@@ -316,9 +369,9 @@ function flex_videos_grid_shortcode($atts) {
     $output_html .= '</div>';
     // Overlay container (single, outside grid)
     $output_html .= '<div id="flex-videos-flyout-overlay" style="display:none;position:fixed;z-index:99999;"></div>';
-    if ($show_grid_description === '1' && $channel_description) {
-        $desc = $channel_description;
-        $max_length = 200; // Reduced from 250
+    if ($show_grid_description === '1') {
+        $desc = $custom_grid_desc !== '' ? $custom_grid_desc : $channel_description;
+        $max_length = 200;
         if (mb_strlen($desc) > $max_length) {
             $desc = mb_substr($desc, 0, $max_length) . '…';
         }
@@ -326,7 +379,9 @@ function flex_videos_grid_shortcode($atts) {
     }
     if ($show_channel_link === '1') {
         $output_html .= '<div class="flex-videos-channel-link" style="margin-top:10px;text-align:right;">';
-        $output_html .= '<a href="https://www.youtube.com/channel/' . esc_attr($channel_id) . '" target="_blank" rel="noopener noreferrer">Visit Channel</a>';
+        $link_text = str_replace('{channel}', $channel_title, $channel_link_text);
+        $channel_url = $channel_custom_url ? 'https://www.youtube.com/c/' . esc_attr($channel_custom_url) : 'https://www.youtube.com/channel/' . esc_attr($channel_id);
+        $output_html .= '<a href="' . esc_url($channel_url) . '" target="_blank" rel="noopener noreferrer">' . esc_html($link_text) . '</a>';
         $output_html .= '</div>';
     }
     $output_html .= '</div>'; // Close wp-block-group wrapper

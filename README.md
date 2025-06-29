@@ -2,7 +2,7 @@
 
 A professional WordPress plugin for displaying flexible, responsive video embeds with YouTube API integration.
 
-## Highlights
+## Highlights (v1.0.0)
 - ✨ Modern flyout overlay on hover: See full video details in a beautiful, left-aligned overlay with large thumbnail, title, and description.
 - 🖼️ Cropped thumbnails: Black bars from YouTube thumbnails are now cropped out for a cleaner grid.
 - 🟧 "Visit Channel" button: Now styled with a bold, orange-yellow gradient and modern sans-serif font for better visual integration.
