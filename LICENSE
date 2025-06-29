@@ -1,21 +1,190 @@
-MIT License
+GNU GENERAL PUBLIC LICENSE
+Version 2, June 1991
 
-Copyright (c) 2025 Ray Villalobos
+Copyright (C) 1989, 1991 Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+Everyone is permitted to copy and distribute verbatim copies
+of this license document, but changing it is not allowed.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Preamble
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+The GNU General Public License is designed to guarantee your freedom to share
+and change free software--to make sure the software is free for all its users.
+This general public license applies to most of the Free Software Foundation's
+software and to any other program whose authors commit to using it. (Some
+other software is covered by the GNU Lesser General Public License instead.)
+You can apply it to your programs, too.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+When we speak of free software, we are referring to freedom of use, not
+price. Our General Public Licenses are designed to make sure that you have
+the freedom to distribute copies of free software (and charge for this
+service if you wish), that you receive source code or can get it if you
+want it, and that you can change the software and use pieces of it in new
+free programs. Combining this with the ability to charge for the service
+of distributing copies and charging for access to source code, we have
+created a system of free software that is also profitable.
+
+Of course, software developers will not generally release their software
+under these licenses unless they benefit as well. By distributing
+derivative works under the same general public license, the original
+developer ensures that their software will remain free, and, since
+everyone else is prohibited from using the software commercially, the
+developer is protected from competition that would deprive them of their
+share of the market. In this way, the general public license serves the
+interests of both users and developers.
+
+The precise terms and conditions for copying, distribution and
+modification follow. Pay close attention to the different categories of
+license conditions, especially the strong copyleft conditions. To
+protect your rights, you must ensure that everyone else also complies
+with these conditions if you distribute copies of the software or
+modify it.
+
+GNU GENERAL PUBLIC LICENSE
+
+TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+
+0. This License applies to any program or other work which contains a
+   notice placed by the copyright holder or other authorized party saying
+   it can be distributed under the terms of this General Public License.
+   The "Program", below, refers to any such program or work, and a
+   "work based on the Program" means either the Program or any derivative
+   work under copyright law: that is to say, a work containing the Program
+   or a portion of it, either verbatim or with modifications and/or
+   translated into another language. (Hereinafter, translation is
+   included without limitation in the term "modification".) Each licensee
+   is addressed as "you".
+
+Activities other than copying, distribution and modification are not
+covered by this License; they are outside its scope. The act of running
+the Program is not restricted, and the results obtained from it are
+yours to accept or reject as you see fit.
+
+1. You may copy and distribute verbatim copies of the Program's source
+   code as you receive it, in any medium, provided that you conspicuously
+   and appropriately publish on each copy an appropriate copyright notice
+   and disclaimer of warranty; keep intact all the notices that refer to
+   this License and to the absence of any warranty; and distribute
+   exactly as received, including any changes, local adaptations or
+   additions made by you or others.
+
+   You may not impose any further restrictions on the recipients'
+   exercise of the rights granted herein. You may not use the Program in
+   a way that would cause it to be subject to any other license terms
+   which would contradict these.
+
+2. You may modify your copy or copies of the Program or any portion of
+   it, thus forming a work based on the Program, and copy and distribute
+   such modifications or work under the terms of Section 1 above,
+   provided that you also meet all of these conditions:
+
+   a) You must cause the modified files to carry prominent notices
+      stating that you changed the files and the date of any change.
+
+   b) You must cause the whole of the work to be licensed at no charge
+      to all third parties under the terms of this License.
+
+   c) If the modified program normally reads commands interactively when
+      run, you must cause it, when started receiving commands, to print
+      or display an announcement including the words "Modified Version"
+      in a manner similar to the original, but not indistinguishably
+      merged with it.
+
+   d) You must keep intact all the notices that refer to this License
+      and to the absence of any warranty; and distribute exactly as
+      received, including any changes, local adaptations or additions
+      made by you or others.
+
+   e) You may not impose any further restrictions on the recipients'
+      exercise of the rights granted herein. You may not use the
+      Program in a way that would cause it to be subject to any other
+      license terms which would contradict these.
+
+3. You may not copy, modify, sublicense, or distribute the Program
+   except as expressly provided under this License. Any attempt
+   otherwise to copy, modify, sublicense or distribute the Program is
+   void, and will automatically terminate your rights under this License.
+
+4. You are not required to accept this License, since you have not
+   signed it. However, nothing else grants you permission to modify or
+   distribute the Program or its derivative works. These actions are
+   prohibited by law if you do not accept this License. Therefore, by
+   modifying or distributing the Program (or any work based on the
+   Program), you indicate your acceptance of this License to do so, and
+   all its terms and conditions.
+
+5. Each time you redistribute the Program or a work based on the
+   Program, the recipient automatically receives a license from the
+   original licensor to use, distribute or modify the Program subject to
+   these terms and conditions. You may not impose any further
+   restrictions on the recipients' exercise of the rights granted herein.
+   You may not use the Program in a way that would cause it to be
+   subject to any other license terms which would contradict these.
+
+6. There is no warranty for the Program, and the copyright holder,
+   licensee and author are not liable for any damages, including any
+   general, special, incidental or consequential damages arising out of
+   the use or inability to use the Program (including but not limited to
+   loss of data or data being rendered inaccurate or losses sustained by
+   you or third parties or a failure of the Program to operate with any
+   other programs), even if such holder or other party has been advised
+   of the possibility of such damages.
+
+   Some jurisdictions do not allow the exclusion or limitation of
+   incidental or consequential damages, so the above limitation or
+   exclusion may not apply to you.
+
+7. You agree to indemnify and hold harmless the Free Software
+   Foundation, Inc., its affiliates, and their directors, officers and
+   employees from any and all claims, liabilities, damages, losses,
+   costs and expenses (including attorneys' fees) arising out of or in
+   connection with your use of the Program or any violation of this
+   License.
+
+8. This License will automatically terminate upon any breach by you of
+   its terms and conditions. Additionally, if you should institute
+   patent litigation against any party (including a cross-claim or
+   counterclaim in a lawsuit) alleging that the Program constitutes a
+   direct or contributory patent infringement, then this License will
+   terminate automatically.
+
+   All sublicenses under this License shall survive any termination of
+   this License. Provisions that, by their nature, are intended to
+   survive termination of this License shall survive, including but not
+   limited to, ownership provisions, warranty disclaimers, indemnity
+   provisions, and limitations of liability.
+
+9. This License represents the complete agreement concerning the subject
+   matter hereof. If any provision of this License is held to be
+   unenforceable, such provision shall be reformed only to the extent
+   necessary to make it enforceable. No party has the right to rely on
+   any prior draft or agreement concerning the subject matter hereof.
+   This License may be modified only by a written agreement signed by
+   both parties.
+
+10. The GNU General Public License is intended to guarantee your freedom
+    to share and change free software. By contrast, proprietary licenses
+    grant you no rights to share or change the software. If you are
+    unsure which license applies to a particular program, you should
+    assume it is proprietary and not share or change it in any way.
+    Please be respectful of the wishes of the authors of the software
+    you use.
+
+    If you wish to incorporate parts of the Program into other free
+    programs whose authors have not placed them under this License, you
+    must obtain permission from the authors, who may be reached at
+    licensing@gnu.org.
+
+    The Free Software Foundation may publish revised and/or new versions
+    of the GNU General Public License from time to time. Unless you
+    receive a copy of the GNU General Public License along with this
+    program, you should have received a copy of the GNU General Public
+    License, version 2, with this program; if not, write to the Free
+    Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+    MA 02110-1301 USA.
+
+    The provisions of the GNU General Public License are intended to
+    protect your rights as a user of free software. If you have any
+    questions about the GNU General Public License or about your rights
+    under it, you can contact the Free Software Foundation at
+    licensing@gnu.org.

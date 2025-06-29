@@ -18,6 +18,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     overlay.innerHTML = html;
     overlay.style.display = 'flex';
+    // Remove animation class if present, then force reflow, then add
+    overlay.classList.remove('flex-videos-animate');
+    void overlay.offsetWidth;
+    overlay.classList.add('flex-videos-animate');
     overlay.style.opacity = '0.95';
     
     // Get overlay dimensions after content is set
@@ -58,6 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   function hideOverlay() {
     overlay.style.opacity = '0';
+    overlay.classList.remove('flex-videos-animate');
     setTimeout(function() {
       overlay.style.display = 'none';
     }, 250);

@@ -10,7 +10,7 @@
     display: grid;
     grid-template-columns: repeat(var(--flex-videos-columns, 3), 1fr);
     gap: 20px;
-    padding: 20px 0;
+    padding: 10px 0;
     overflow: visible;
     position: relative;
     z-index: 1;
@@ -39,19 +39,13 @@
 /* Video Item Styles */
 .flex-videos-item {
     position: relative;
-    background: #f9f9f9;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
-    margin: 0;
     aspect-ratio: 16/9;
     max-width: var(--flex-videos-width, 320px);
     margin: 0 auto;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(0,0,0,.1);
-    background: #000;
+    background: transparent;
     transition: transform .3s, box-shadow .3s;
     display: flex;
     align-items: flex-start;
@@ -63,23 +57,25 @@
     object-fit: cover;
     object-position: center;
     display: block;
-    border-radius: 8px;
+    border-radius: 12px;
+    background: transparent;
+    transform: scale(1.05);
 }
 
 /* Hide YouTube play button overlay to show thumbnails clearly */
-.flex-video-item .ytp-large-play-button,
-.flex-video-item .ytp-play-button,
-.flex-video-item .ytp-cued-thumbnail-overlay,
-.flex-video-item .ytp-cued-thumbnail-overlay-image,
-.flex-video-item iframe[src*="youtube"] + .play-button,
-.flex-video-item .youtube-play-button {
+.flex-videos-item .ytp-large-play-button,
+.flex-videos-item .ytp-play-button,
+.flex-videos-item .ytp-cued-thumbnail-overlay,
+.flex-videos-item .ytp-cued-thumbnail-overlay-image,
+.flex-videos-item iframe[src*="youtube"] + .play-button,
+.flex-videos-item .youtube-play-button {
     display: none !important;
     opacity: 0 !important;
     visibility: hidden !important;
 }
 
 /* Ensure thumbnail images are fully visible */
-.flex-video-item::before {
+.flex-videos-item::before {
     content: '';
     position: absolute;
     top: 0;
@@ -91,25 +87,18 @@
     pointer-events: none;
 }
 
-.flex-video-item:hover {
+.flex-videos-item:hover {
     transform: translateY(-5px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 20px rgba(0,0,0,.15);
 }
 
-.flex-video-item iframe {
+.flex-videos-item iframe {
     width: 100%;
     height: auto;
     border: none;
 }
 
-.flex-video-item img {
-    width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 8px;
-}
-
-.flex-video-title {
+.flex-videos-title {
     padding: 10px 10px 0 10px;
     font-size: 15px;
     font-weight: 600;
@@ -117,7 +106,7 @@
     line-height: 1.4;
 }
 
-.flex-video-description {
+.flex-videos-description {
     padding: 0 10px 10px 10px;
     font-size: 13px;
     color: #666;
@@ -131,8 +120,28 @@
 }
 
 .flex-videos-channel-link a {
-    color: #0073aa;
-    text-decoration: underline;
+    display: inline-block;
+    background: linear-gradient(135deg, #ff8c00, #ffa500);
+    color: #fff !important;
+    text-decoration: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(255, 140, 0, 0.3);
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.flex-videos-channel-link a:hover {
+    background: linear-gradient(135deg, #e67c00, #ff9500);
+    color: #fff !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(255, 140, 0, 0.4);
 }
 
 /* Video Overlay Styles */
@@ -176,7 +185,30 @@
 .flex-videos-thumb {
     width: 100%;
     display: block;
-    border-radius: 8px;
+    border-radius: 12px;
+    object-fit: cover;
+    object-position: center;
+    background: transparent;
+    transform: scale(1.05);
+}
+
+/* Overlay Animation */
+@keyframes flex-videos-fade-slide {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.98);
+    filter: blur(6px) brightness(0.8);
+  }
+  60% {
+    opacity: 0.7;
+    transform: translateY(-8px) scale(1.01);
+    filter: blur(1.5px) brightness(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0) brightness(1);
+  }
 }
 
 #flex-videos-flyout-overlay {
@@ -193,11 +225,16 @@
     pointer-events: auto;
     transition: opacity 0.25s ease;
     z-index: 999999;
-    padding: 20px;
+    padding: 15px;
     display: none;
     flex-direction: column;
     align-items: flex-start;
     text-align: left;
+    will-change: opacity, transform, filter;
+}
+
+#flex-videos-flyout-overlay.flex-videos-animate {
+  animation: flex-videos-fade-slide 0.38s cubic-bezier(.33,1.2,.68,1) both;
 }
 
 #flex-videos-flyout-overlay .flex-videos-overlay-thumb {
@@ -205,11 +242,12 @@
     max-width: 300px;
     height: auto;
     border-radius: 8px;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     align-self: center;
     object-fit: cover;
     object-position: center;
+    transform: scale(1.05);
 }
 
 #flex-videos-flyout-overlay .flex-videos-overlay-title {
@@ -219,6 +257,10 @@
     line-height: 1.3;
     color: #fff;
     width: 100%;
+    text-align: left !important;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
 }
 
 #flex-videos-flyout-overlay .flex-videos-overlay-desc {
@@ -227,6 +269,59 @@
     line-height: 1.5;
     margin: 0;
     width: 100%;
+    text-align: left !important;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+}
+
+/* WordPress Block Group Wrapper */
+.wp-block-group.flex-videos-wrapper {
+    margin: 0;
+    padding: 0;
+}
+
+.wp-block-group.flex-videos-wrapper .wp-block-group__inner-container {
+    margin: 0;
+    padding: 0;
+}
+
+/* Single Video Styles */
+.flex-video-single {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto 2em auto;
+    aspect-ratio: 16/9;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,.1);
+}
+
+.flex-video-single iframe {
+    position: absolute;
+    top: 0; 
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+}
+
+.flex-video-title {
+    margin-top: 1em;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    line-height: 1.4;
+}
+
+.flex-video-description {
+    margin-top: 0.5em;
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
 }
 
 /* Responsive Design */
@@ -242,12 +337,12 @@
         gap: 6px;
     }
     
-    .flex-video-title {
+    .flex-videos-title {
         font-size: 13px;
         padding: 8px 8px 0 8px;
     }
     
-    .flex-video-description {
+    .flex-videos-description {
         font-size: 12px;
         padding: 0 8px 8px 8px;
     }

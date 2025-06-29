@@ -2,13 +2,20 @@
 
 A professional WordPress plugin for displaying flexible, responsive video embeds with YouTube API integration.
 
+## Highlights
+- ✨ Modern flyout overlay on hover: See full video details in a beautiful, left-aligned overlay with large thumbnail, title, and description.
+- 🖼️ Cropped thumbnails: Black bars from YouTube thumbnails are now cropped out for a cleaner grid.
+- 🟧 "Visit Channel" button: Now styled with a bold, orange-yellow gradient and modern sans-serif font for better visual integration.
+- 🧹 Tighter layout: Reduced extra space above/below the grid and in overlays for a more compact, professional look.
+- 🛠️ Cleaner markup: Removed unnecessary inner container divs for simpler, more semantic HTML.
+- 🪟 Overlay content is never clipped and always visible, even at viewport edges.
+
 ## Features
 - 🎥 **YouTube API Integration** - Display latest videos from any channel
 - 📱 **Responsive Design** - Mobile-friendly video grids that look great on all devices
 - ⚡ **Performance Optimized** - Built-in caching and lazy loading for fast page loads
 - 🎨 **Customizable Layout** - Control columns, rows, spacing, and video dimensions
-- 📝 **Custom Titles & Descriptions** - Set your own title/description for thumbnails and single video
-- 🔗 **Channel Link Option** - Show or hide a link to your YouTube channel
+- 🔗 **Channel Link Option** - Show or hide a link to your YouTube channel (now a bold, orange button)
 - 🔧 **Easy Configuration** - Simple admin interface for API setup and display options
 - 🌐 **Translation Ready** - Full internationalization support
 - 📊 **Analytics Integration** - Built-in click tracking for Google Analytics
@@ -95,10 +102,10 @@ You can also test your API key and clear the plugin cache from this page.
 
 ## Display Behavior
 
-- **Grid:** Clicking a thumbnail opens the video on YouTube in a new tab (no inline play, no play overlay).
+- **Grid:** Clicking a thumbnail opens the video on YouTube in a new tab (no inline play, no play overlay). Only the thumbnail is shown in the grid; title/description are shown in the overlay on hover.
 - **Grid Title/Description:** A single title can be shown above the grid and a single description below the grid (both customizable and toggleable in settings; on by default).
 - **Single Video:** Plays inline and shows title/description (custom or from YouTube).
-- **Channel Link:** A link to your YouTube channel is shown below the grid by default (can be disabled in settings).
+- **Channel Link:** A bold, orange button linking to your YouTube channel is shown below the grid by default (can be disabled in settings).
 
 ## Styling & Customization
 
@@ -110,50 +117,52 @@ The plugin includes professional CSS styling that's automatically loaded. You ca
 .flex-videos-grid {
   display: grid;
   gap: var(--flex-videos-gap, 10px);
-  margin: 20px 0;
+  margin: 10px 0;
 }
 
 .flex-videos-item {
   position: relative;
-  background: #f9f9f9;
-  border-radius: 8px;
+  background: transparent;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
-  margin: 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,.1);
+  transition: transform .3s, box-shadow .3s;
 }
 
-.flex-videos-item img {
+.flex-videos-item img,
+.flex-videos-thumb {
   width: 100%;
-  height: auto;
-  display: block;
-  border-radius: 8px;
-}
-
-.flex-video-title {
-  padding: 10px 10px 0 10px;
-  font-size: 15px;
-  font-weight: 600;
-  color: #333;
-  line-height: 1.4;
-}
-
-.flex-video-description {
-  padding: 0 10px 10px 10px;
-  font-size: 13px;
-  color: #666;
-  line-height: 1.5;
-}
-
-.flex-videos-channel-link {
-  margin-top: 10px;
-  text-align: right;
-  font-size: 13px;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 12px;
+  background: transparent;
+  transform: scale(1.05); /* Crops black bars */
 }
 
 .flex-videos-channel-link a {
-  color: #0073aa;
-  text-decoration: underline;
+  background: linear-gradient(135deg, #ff8c00, #ffa500);
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: 8px;
+  padding: 12px 20px;
+  letter-spacing: 0.5px;
+}
+
+#flex-videos-flyout-overlay {
+  position: fixed;
+  z-index: 999999;
+  background: rgba(64,64,64,0.95);
+  border-radius: 12px;
+  padding: 15px;
+  left: 0; top: 0;
+  width: 350px;
+  display: none;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
 }
 ```
 
@@ -290,7 +299,7 @@ See [CHANGELOG.md](CHANGELOG.md) for a detailed history of changes.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GPL-2.0-or-later License - see the [LICENSE](LICENSE) file for details.
 
 ## Credits
 

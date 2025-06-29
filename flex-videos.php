@@ -3,11 +3,11 @@
  * Plugin Name:       Flex Videos
  * Plugin URI:        https://github.com/rayvillalobos/flex-videos
  * Description:       A professional WordPress plugin for displaying flexible, responsive video embeds with YouTube API integration.
- * Version:           1.0.1
+ * Version:           1.0.0
  * Author:            Ray Villalobos
  * Author URI:        https://itsplaitime.com/
- * License:           MIT
- * License URI:       https://opensource.org/licenses/MIT
+ * License:           GPL-2.0-or-later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       flex-videos
  * Requires at least: 5.0
  * Tested up to:      6.5
@@ -191,78 +191,6 @@ function flex_videos_settings_page_html() {
 
 // --- SHORTCODE AND DISPLAY LOGIC ---
 
-// Enqueue Flex Videos CSS
-function flex_videos_enqueue_css() {
-    $css = '
-    .flex-videos-grid {
-      display: grid;
-      grid-template-columns: repeat(var(--flex-videos-columns, 3), 1fr);
-      gap: 20px;
-      padding: 20px 0;
-    }
-    .flex-videos-item {
-      aspect-ratio: 16/9;
-      max-width: var(--flex-videos-width, 320px);
-      margin: 0 auto;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,.1);
-      background: #000;
-      transition: transform .3s, box-shadow .3s;
-      position: relative;
-    }
-    .flex-videos-item:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 20px rgba(0,0,0,.15);
-    }
-    .flex-videos-item iframe {
-      width: 100%;
-      height: 100%;
-      border: 0;
-      display: block;
-    }
-    .flex-videos-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background: rgba(0, 0, 0, 0.7);
-      opacity: 0;
-      transition: opacity .3s;
-      padding: 10px;
-      border-radius: 12px;
-    }
-    .flex-videos-item:hover .flex-videos-overlay {
-      opacity: 1;
-    }
-    .flex-videos-overlay-thumb {
-      width: 100%;
-      height: auto;
-      border-radius: 8px;
-      margin-bottom: 10px;
-    }
-    .flex-videos-overlay-title {
-      color: #fff;
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 5px;
-      text-align: center;
-    }
-    .flex-videos-overlay-desc {
-      color: #ddd;
-      font-size: 14px;
-      text-align: center;
-    }
-    ';
-    echo '<style id="flex-videos-css">' . $css . '</style>';
-}
-add_action('wp_head', 'flex_videos_enqueue_css');
-
 // New [flex_videos] shortcode for grid display
 function flex_videos_grid_shortcode($atts) {
     $api_key = get_option('flex_videos_api_key');
@@ -350,7 +278,7 @@ function flex_videos_grid_shortcode($atts) {
         return '<p>No videos found for this channel.</p>';
     }
     $videos_to_display = array_slice($videos, 0, $max_to_display);
-    $output_html = '';
+    $output_html = '<div class="wp-block-group flex-videos-wrapper">';
     if ($show_grid_title === '1') {
         $output_html .= '<h2 class="wp-block-heading">' . esc_html($channel_title) . '</h2>';
     }
@@ -361,7 +289,7 @@ function flex_videos_grid_shortcode($atts) {
         $snippet = $video['snippet'];
         $title = isset($snippet['title']) ? $snippet['title'] : '';
         $desc = isset($snippet['description']) ? $snippet['description'] : '';
-        $desc_max = 120;
+        $desc_max = 50; // Reduced from 80 for more trimming
         $title_max = 60;
         if (mb_strlen($desc) > $desc_max) {
             $desc = mb_substr($desc, 0, $desc_max) . '…';
@@ -369,6 +297,9 @@ function flex_videos_grid_shortcode($atts) {
         if (mb_strlen($title) > $title_max) {
             $title = mb_substr($title, 0, $title_max) . '…';
         }
+        // For overlay, don't truncate
+        $overlay_title = isset($snippet['title']) ? esc_html($snippet['title']) : '';
+        $overlay_desc = isset($snippet['description']) ? esc_html($snippet['description']) : '';
         $title = esc_html($title);
         $desc = esc_html($desc);
         $thumbs = $snippet['thumbnails'];
@@ -376,7 +307,7 @@ function flex_videos_grid_shortcode($atts) {
         $large_thumb_url = isset($thumbs['high']['url']) ? esc_url($thumbs['high']['url']) : $thumb_url;
         if (!$thumb_url) continue;
         $video_url = 'https://www.youtube.com/watch?v=' . esc_attr($video_id);
-        $output_html .= '<div class="flex-videos-item flex-videos-item-has-overlay" tabindex="0" data-title="' . esc_attr($title) . '" data-desc="' . esc_attr($desc) . '" data-thumb="' . esc_url($large_thumb_url) . '" data-url="' . esc_url($video_url) . '">';
+        $output_html .= '<div class="flex-videos-item flex-videos-item-has-overlay" tabindex="0" data-title="' . esc_attr($overlay_title) . '" data-desc="' . esc_attr($overlay_desc) . '" data-thumb="' . esc_url($large_thumb_url) . '" data-url="' . esc_url($video_url) . '">';
         $output_html .= '<a href="' . $video_url . '" target="_blank" rel="noopener noreferrer" class="flex-videos-thumb-link">';
         $output_html .= '<img src="' . $thumb_url . '" alt="YouTube Video Thumbnail" class="flex-videos-thumb">';
         $output_html .= '</a>';
@@ -387,7 +318,7 @@ function flex_videos_grid_shortcode($atts) {
     $output_html .= '<div id="flex-videos-flyout-overlay" style="display:none;position:fixed;z-index:99999;"></div>';
     if ($show_grid_description === '1' && $channel_description) {
         $desc = $channel_description;
-        $max_length = 250;
+        $max_length = 200; // Reduced from 250
         if (mb_strlen($desc) > $max_length) {
             $desc = mb_substr($desc, 0, $max_length) . '…';
         }
@@ -398,36 +329,10 @@ function flex_videos_grid_shortcode($atts) {
         $output_html .= '<a href="https://www.youtube.com/channel/' . esc_attr($channel_id) . '" target="_blank" rel="noopener noreferrer">Visit Channel</a>';
         $output_html .= '</div>';
     }
+    $output_html .= '</div>'; // Close wp-block-group wrapper
     return $output_html;
 }
 add_shortcode('flex_videos', 'flex_videos_grid_shortcode');
-
-// Responsive CSS for single video embeds
-function flex_video_single_css() {
-    $css = '
-    .flex-video-single {
-      position: relative;
-      width: 100%;
-      max-width: 800px;
-      margin: 0 auto 2em auto;
-      aspect-ratio: 16/9;
-      background: #000;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,.1);
-    }
-    .flex-video-single iframe {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      border: 0;
-      display: block;
-    }
-    ';
-    echo '<style id="flex-video-single-css">' . $css . '</style>';
-}
-add_action('wp_head', 'flex_video_single_css');
 
 // [flex_video] shortcode for single responsive video
 function flex_video_single_shortcode($atts) {

@@ -5,40 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.0] - 2025-06-29
 
 ### Added
-- Professional plugin structure with organized directories
-- CSS and JavaScript assets for better styling and functionality
-- Uninstall script for proper cleanup
-- Security index.php files to prevent directory browsing
-- Responsive video grid layout
-- Admin interface improvements
-- Click tracking for analytics
+- Modern flyout overlay on hover with full video details (large thumbnail, title, description)
+- Cropped thumbnails to remove black bars from YouTube
+- Orange-yellow "Visit Channel" button with bold, sans-serif font
+- Tighter layout with reduced space above/below grid and overlays
+- All output wrapped in a WordPress block group for block compatibility
+- Overlay content is always left-aligned and never truncated
+- CSS/JS fully external and improved for maintainability
+- Button and overlay styles are easy to customize
 
-## [1.0.1] - 2025-06-28
-
-### Added
-- YouTube Data API integration
-- Caching system for improved performance
-- Admin settings page for API configuration
-- Shortcode support for embedding videos
-- Channel ID configuration
-- Cache reset functionality
+### Changed
+- Main grid descriptions are trimmed more aggressively
+- Removed unnecessary inner container divs for cleaner markup
+- Overlay content is never clipped and always visible at viewport edges
 
 ### Fixed
-- API key field visibility on settings page
-- Settings registration and display
-
-## [1.0.0] - 2025-06-01
-
-### Added
-- Initial plugin release
-- Basic video embedding functionality
-- WordPress shortcode support
-- Responsive video display
-- GPL-2.0-or-later license
-
-### Security
-- Added security checks to prevent direct file access
-- Implemented proper WordPress coding standards
+- Thumbnail alignment for non-standard aspect ratios
+- Overlay positioning and boundary checks
+- Class name inconsistencies and duplicate CSS
