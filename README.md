@@ -109,7 +109,20 @@ You can also test your API key and clear the plugin cache from this page.
 
 ## Styling & Customization
 
-The plugin includes professional CSS styling that's automatically loaded. You can customize the appearance by adding CSS to your theme or using WordPress Customizer (**Appearance > Customize > Additional CSS**).
+The plugin includes professional CSS styling that's automatically loaded. You can customize the appearance through the admin settings or by adding CSS to your theme.
+
+### Button Colors (Admin Settings)
+
+The easiest way to customize the "Visit Channel" button colors is through the WordPress admin:
+
+1. Go to **Settings → Flex Videos**
+2. Scroll down to **Channel Link Options** section  
+3. Use the color pickers to customize button background, hover, and text colors
+4. Click **Save Settings**
+
+### Advanced CSS Customization
+
+For advanced styling, you can add CSS to your theme or use WordPress Customizer (**Appearance > Customize > Additional CSS**).
 
 ### Key CSS Classes
 

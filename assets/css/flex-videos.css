@@ -2,7 +2,52 @@
  * Flex Videos Plugin Styles
  * 
  * @package FlexVideos
- * @version 1.0.1
+ * @version 1.0.0
+ */
+
+/* CSS Custom Properties for Theme Customization */
+:root {
+    --flex-videos-button-bg: #ff8c00;
+    --flex-videos-button-bg-hover: #e67c00;
+    --flex-videos-button-color: #fff;
+    --flex-videos-button-shadow: rgba(255, 140, 0, 0.3);
+    --flex-videos-button-shadow-hover: rgba(230, 124, 0, 0.4);
+}
+
+/* 
+ * CUSTOMIZATION GUIDE for Theme Developers
+ * ======================================
+ * 
+ * EASY METHOD: Use the admin settings at Settings → Flex Videos
+ * to customize button colors with color pickers (recommended for most users).
+ * 
+ * ADVANCED METHOD: Override with custom CSS below.
+ * To customize the "Visit Channel" button colors using CSS,
+ * add this CSS to your theme's style.css or in Appearance > Customize > Additional CSS:
+ * 
+ * Example 1 - Blue Theme:
+ * :root {
+ *     --flex-videos-button-bg: #0073aa;
+ *     --flex-videos-button-bg-hover: #005a87;
+ *     --flex-videos-button-color: #fff;
+ *     --flex-videos-button-shadow: rgba(0, 115, 170, 0.3);
+ *     --flex-videos-button-shadow-hover: rgba(0, 115, 170, 0.4);
+ * }
+ * 
+ * Example 2 - Green Theme:
+ * :root {
+ *     --flex-videos-button-bg: #28a745;
+ *     --flex-videos-button-bg-hover: #20c997;
+ *     --flex-videos-button-color: #fff;
+ *     --flex-videos-button-shadow: rgba(40, 167, 69, 0.3);
+ *     --flex-videos-button-shadow-hover: rgba(40, 167, 69, 0.4);
+ * }
+ * 
+ * You can also target the button directly:
+ * .flex-videos-channel-link a {
+ *     background: your-custom-color !important;
+ *     color: your-text-color !important;
+ * }
  */
 
 /* Video Grid Styles */
@@ -121,8 +166,8 @@
 
 .flex-videos-channel-link a {
     display: inline-block;
-    background: linear-gradient(135deg, #ff8c00, #ffa500);
-    color: #fff !important;
+    background: var(--flex-videos-button-bg);
+    color: var(--flex-videos-button-color) !important;
     text-decoration: none;
     padding: 12px 20px;
     border-radius: 8px;
@@ -130,7 +175,7 @@
     font-size: 14px;
     font-weight: 700;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(255, 140, 0, 0.3);
+    box-shadow: 0 2px 4px var(--flex-videos-button-shadow);
     border: none;
     cursor: pointer;
     text-transform: uppercase;
@@ -138,10 +183,10 @@
 }
 
 .flex-videos-channel-link a:hover {
-    background: linear-gradient(135deg, #e67c00, #ff9500);
-    color: #fff !important;
+    background: var(--flex-videos-button-bg-hover);
+    color: var(--flex-videos-button-color) !important;
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(255, 140, 0, 0.4);
+    box-shadow: 0 4px 8px var(--flex-videos-button-shadow-hover);
 }
 
 /* Video Overlay Styles */
@@ -223,7 +268,7 @@
     border: 2px solid rgba(255,255,255,0.1);
     opacity: 0;
     pointer-events: auto;
-    transition: opacity 0.25s ease;
+    transition: opacity 0.4s ease;
     z-index: 999999;
     padding: 15px;
     display: none;
@@ -234,7 +279,7 @@
 }
 
 #flex-videos-flyout-overlay.flex-videos-animate {
-  animation: flex-videos-fade-slide 0.38s cubic-bezier(.33,1.2,.68,1) both;
+  animation: flex-videos-fade-slide 0.65s cubic-bezier(.33,1.2,.68,1) both;
 }
 
 #flex-videos-flyout-overlay .flex-videos-overlay-thumb {
@@ -284,6 +329,16 @@
 .wp-block-group.flex-videos-wrapper .wp-block-group__inner-container {
     margin: 0;
     padding: 0;
+}
+
+/* Reduce spacing between title and grid */
+.wp-block-group.flex-videos-wrapper .wp-block-heading {
+    margin-bottom: 10px !important;
+}
+
+.wp-block-group.flex-videos-wrapper .flex-videos-grid {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
 }
 
 /* Single Video Styles */

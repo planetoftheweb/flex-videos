@@ -125,6 +125,9 @@ function flex_videos_settings_init() {
     );
     register_setting('flex_videos_settings_group', 'flex_videos_show_channel_link');
     register_setting('flex_videos_settings_group', 'flex_videos_channel_link_text');
+    register_setting('flex_videos_settings_group', 'flex_videos_button_color');
+    register_setting('flex_videos_settings_group', 'flex_videos_button_hover_color');
+    register_setting('flex_videos_settings_group', 'flex_videos_button_text_color');
     add_settings_field(
         'flex_videos_show_channel_link',
         'Show Channel Link',
@@ -136,6 +139,27 @@ function flex_videos_settings_init() {
         'flex_videos_channel_link_text',
         'Channel Link Text',
         'flex_videos_channel_link_text_field_html',
+        'flex_videos_settings_group',
+        'flex_videos_channel_section'
+    );
+    add_settings_field(
+        'flex_videos_button_color',
+        'Button Background Color',
+        'flex_videos_button_color_field_html',
+        'flex_videos_settings_group',
+        'flex_videos_channel_section'
+    );
+    add_settings_field(
+        'flex_videos_button_hover_color',
+        'Button Hover Color',
+        'flex_videos_button_hover_color_field_html',
+        'flex_videos_settings_group',
+        'flex_videos_channel_section'
+    );
+    add_settings_field(
+        'flex_videos_button_text_color',
+        'Button Text Color',
+        'flex_videos_button_text_color_field_html',
         'flex_videos_settings_group',
         'flex_videos_channel_section'
     );
@@ -178,8 +202,10 @@ function flex_videos_custom_grid_title_field_html() {
 }
 function flex_videos_custom_grid_desc_field_html() {
     $val = get_option('flex_videos_custom_grid_desc', '');
-    echo '<textarea name="flex_videos_custom_grid_desc" rows="2" cols="50>' . esc_textarea($val) . '</textarea>';
-    echo '<p class="description">Override the grid description with your own text (optional).</p>';
+    ?>
+    <textarea name="flex_videos_custom_grid_desc" rows="3" cols="50"><?php echo esc_textarea($val); ?></textarea>
+    <p class="description">Override the grid description with your own text (optional).</p>
+    <?php
 }
 function flex_videos_channel_link_text_field_html() {
     $val = get_option('flex_videos_channel_link_text', 'Visit Channel');
@@ -190,6 +216,33 @@ function flex_videos_show_grid_title_field_html() {
     $show = get_option('flex_videos_show_grid_title', '1');
     echo '<input type="checkbox" name="flex_videos_show_grid_title" value="1"' . checked($show, '1', false) . '> Show the grid title above the video grid.';
 }
+function flex_videos_show_grid_description_field_html() {
+    $show = get_option('flex_videos_show_grid_description', '1');
+    echo '<input type="checkbox" name="flex_videos_show_grid_description" value="1"' . checked($show, '1', false) . '> Show the grid description below the title.';
+}
+function flex_videos_button_color_field_html() {
+    $color = get_option('flex_videos_button_color', '#ff8c00');
+    ?>
+    <input type="color" name="flex_videos_button_color" value="<?php echo esc_attr($color); ?>" />
+    <p class="description">Choose the background color for the "Visit Channel" button (default: orange).</p>
+    <?php
+}
+
+function flex_videos_button_hover_color_field_html() {
+    $color = get_option('flex_videos_button_hover_color', '#e67c00');
+    ?>
+    <input type="color" name="flex_videos_button_hover_color" value="<?php echo esc_attr($color); ?>" />
+    <p class="description">Choose the background color when hovering over the button (default: darker orange).</p>
+    <?php
+}
+
+function flex_videos_button_text_color_field_html() {
+    $color = get_option('flex_videos_button_text_color', '#ffffff');
+    ?>
+    <input type="color" name="flex_videos_button_text_color" value="<?php echo esc_attr($color); ?>" />
+    <p class="description">Choose the text color for the button (default: white).</p>
+    <?php
+}
 
 // Add cache clearing functionality
 function flex_videos_clear_cache() {
@@ -197,8 +250,25 @@ function flex_videos_clear_cache() {
         global $wpdb;
         $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_flex_videos_search_cache_%'");
         $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_flex_videos_search_cache_%'");
+        $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_flex_videos_channel_info_%'");
+        $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_flex_videos_channel_info_%'");
         add_action('admin_notices', function() {
-            echo '<div class="notice notice-success is-dismissible"><p>Cache cleared successfully!</p></div>';
+            echo '<div class="notice notice-success is-dismissible"><p>YouTube cache cleared successfully!</p></div>';
+        });
+    }
+    
+    if (isset($_POST['reset_plugin_settings']) && check_admin_referer('flex_videos_reset_settings', 'flex_videos_reset_nonce')) {
+        // Clear all plugin options to force fresh state
+        delete_option('flex_videos_show_grid_title');
+        delete_option('flex_videos_show_grid_description');
+        delete_option('flex_videos_custom_grid_title');
+        delete_option('flex_videos_custom_grid_desc');
+        
+        // Re-register settings to ensure fresh state
+        do_action('admin_init');
+        
+        add_action('admin_notices', function() {
+            echo '<div class="notice notice-success is-dismissible"><p>Plugin settings reset successfully! Please reconfigure your display options.</p></div>';
         });
     }
 }
@@ -227,11 +297,21 @@ function flex_videos_settings_page_html() {
         </form>
         <hr>
         <h2>Cache Management</h2>
-        <p>The plugin caches results for 1 hour to improve performance. You can manually clear this by deactivating and reactivating the plugin or using the button below.</p>
+        <p>The plugin caches YouTube results for 1 hour to improve performance. You can manually clear this cache using the button below.</p>
         <form method="post" action="">
             <?php wp_nonce_field('flex_videos_clear_cache', 'flex_videos_cache_nonce'); ?>
             <p>
-                <input type="submit" name="clear_cache" class="button button-primary" value="Clear Cache">
+                <input type="submit" name="clear_cache" class="button button-secondary" value="Clear YouTube Cache">
+            </p>
+        </form>
+        
+        <hr>
+        <h2>Plugin Settings Reset</h2>
+        <p><strong>Warning:</strong> This will reset all plugin display settings to default values and force refresh the admin interface. Use this if you're experiencing display issues in the settings page.</p>
+        <form method="post" action="">
+            <?php wp_nonce_field('flex_videos_reset_settings', 'flex_videos_reset_nonce'); ?>
+            <p>
+                <input type="submit" name="reset_plugin_settings" class="button button-secondary" value="Reset Plugin Settings" onclick="return confirm('This will reset all your display settings. Are you sure?');">
             </p>
         </form>
     </div>
@@ -490,7 +570,23 @@ add_action('admin_init', 'flex_videos_test_api_key');
 
 // Enqueue Flex Videos CSS and JS
 function flex_videos_enqueue_assets() {
-    wp_enqueue_style('flex-videos-css', plugins_url('assets/css/flex-videos.css', __FILE__), [], '1.0.1');
-    wp_enqueue_script('flex-videos-flyout', plugins_url('assets/js/flex-videos-flyout.js', __FILE__), [], '1.0.1', true);
+    wp_enqueue_style('flex-videos-css', plugins_url('assets/css/flex-videos.css', __FILE__), [], '1.0.0');
+    wp_enqueue_script('flex-videos-flyout', plugins_url('assets/js/flex-videos-flyout.js', __FILE__), [], '1.0.0', true);
+    
+    // Add custom button colors
+    $button_color = get_option('flex_videos_button_color', '#ff8c00');
+    $button_hover_color = get_option('flex_videos_button_hover_color', '#e67c00');
+    $button_text_color = get_option('flex_videos_button_text_color', '#ffffff');
+    
+    $custom_css = "
+    :root {
+        --flex-videos-button-bg: {$button_color};
+        --flex-videos-button-bg-hover: {$button_hover_color};
+        --flex-videos-button-color: {$button_text_color};
+        --flex-videos-button-shadow: " . $button_color . "50;
+        --flex-videos-button-shadow-hover: " . $button_hover_color . "66;
+    }";
+    
+    wp_add_inline_style('flex-videos-css', $custom_css);
 }
 add_action('wp_enqueue_scripts', 'flex_videos_enqueue_assets');

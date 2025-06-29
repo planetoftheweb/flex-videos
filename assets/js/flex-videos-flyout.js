@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
     overlay.classList.remove('flex-videos-animate');
     setTimeout(function() {
       overlay.style.display = 'none';
-    }, 250);
+    }, 400);
   }
   
   items.forEach(function(item) {
