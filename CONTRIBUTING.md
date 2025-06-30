@@ -69,7 +69,6 @@ flex-videos/
 │   ├── css/          # Stylesheets
 │   ├── js/           # JavaScript files
 │   └── images/       # Images and icons
-├── includes/         # PHP classes and functions
 ├── languages/        # Translation files
 ├── templates/        # Template files
 ├── flex-videos.php   # Main plugin file
