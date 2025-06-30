@@ -2,7 +2,7 @@
     "name": "planetoftheweb/flex-videos",
     "description": "A professional WordPress plugin for displaying flexible, responsive video embeds with YouTube API integration",
     "type": "wordpress-plugin",
-    "license": "MIT",
+    "license": "GPL-2.0-or-later",
     "version": "1.0.1",
     "authors": [
         {
@@ -29,11 +29,6 @@
         "phpunit/phpunit": "^9.0",
         "wp-coding-standards/wpcs": "^2.3",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7"
-    },
-    "autoload": {
-        "psr-4": {
-            "FlexVideos\\": "includes/"
-        }
     },
     "scripts": {
         "test": "phpunit",

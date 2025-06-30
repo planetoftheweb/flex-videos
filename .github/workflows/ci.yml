@@ -15,7 +15,9 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
       - name: Validate plugin PHP
-        run: php -l flex_videos-plugin.php
+        run: php -l flex-videos.php
       - name: Check README exists
         run: test -f README.md
