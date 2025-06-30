@@ -98,7 +98,7 @@ Initial release of Flex Videos plugin.
 
 == Usage ==
 
-Use the shortcode `[flex_videos]` to display a grid of videos from your configured YouTube channel.
+You can add the **Flex Videos Grid** block in the editor or use the shortcode `[flex_videos]` to display a grid of videos from your configured YouTube channel.
 
 Available shortcode attributes:
 * `columns` - Number of columns (1-10, default: 3)
