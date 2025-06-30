@@ -291,10 +291,32 @@ function flex_videos_clear_cache() {
 }
 add_action('admin_init', 'flex_videos_clear_cache');
 
+/**
+ * AJAX handler to reset the plugin cache.
+ */
+function flex_videos_reset_cache() {
+    check_ajax_referer('flex_videos_nonce', 'nonce');
+
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error(__('Error resetting cache.', 'flex-videos'));
+    }
+
+    $channel_id = get_option('flex_videos_channel_id');
+    if ($channel_id) {
+        delete_transient('flex_videos_channel_info_' . $channel_id);
+    }
+
+    $cache_version = get_option('flex_videos_cache_version', 1);
+    update_option('flex_videos_cache_version', $cache_version + 1);
+
+    wp_send_json_success(__('Cache has been reset successfully.', 'flex-videos'));
+}
+add_action('wp_ajax_flex_videos_reset_cache', 'flex_videos_reset_cache');
+
 function flex_videos_settings_page_html() {
     if (!current_user_can('manage_options')) return;
     ?>
-    <div class="wrap">
+    <div class="wrap flex-videos-admin">
         <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
         <form action="options.php" method="post">
             <?php
@@ -318,6 +340,7 @@ function flex_videos_settings_page_html() {
         <form method="post" action="">
             <?php wp_nonce_field('flex_videos_clear_cache', 'flex_videos_cache_nonce'); ?>
             <p>
+                <input type="submit" name="clear_cache" class="button button-secondary" value="Clear YouTube Cache">
                 <input type="submit" name="clear_cache" class="button button-secondary" value="<?php echo esc_attr(__('Clear YouTube Cache', 'flex-videos')); ?>">
             </p>
         </form>
