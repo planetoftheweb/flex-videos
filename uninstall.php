@@ -36,21 +36,19 @@ foreach ($option_keys as $key) {
 }
 
 // Delete cached transients
-global $wpdb;
-$patterns = [
-    '_transient_flex_videos_channel_info_%',
-    '_transient_timeout_flex_videos_channel_info_%',
-    '_transient_flex_videos_search_cache_%',
-    '_transient_timeout_flex_videos_search_cache_%',
-];
-foreach ($patterns as $pattern) {
-    $wpdb->query(
-        $wpdb->prepare(
-            "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
-            $pattern
-        )
-    );
+// Clear object cache if used
+wp_cache_flush();
+
+// For uninstall, we'll use a more WordPress-friendly approach
+// Since we can't easily enumerate all transients without direct DB queries,
+// we'll rely on WordPress's built-in cleanup and focus on known transients
+$channel_id = get_option('flex_videos_channel_id');
+if ($channel_id) {
+    delete_transient('flex_videos_channel_info_' . $channel_id);
 }
+
+// Delete the cache version option which will invalidate remaining caches
+delete_option('flex_videos_cache_version');
 
 // Clear object cache if used
 wp_cache_delete('flex_videos_cache', 'flex_videos');

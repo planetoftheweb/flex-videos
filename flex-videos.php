@@ -12,7 +12,6 @@
  * Requires at least: 5.0
  * Tested up to:      6.8
  * Requires PHP:      7.4
- * Update URI:        https://github.com/planetoftheweb/flex-videos/
  */
 
 // Block direct access to the file.
@@ -23,15 +22,6 @@ if (!defined('ABSPATH')) {
 // Load Composer dependencies if available.
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
-}
-
-// Plugin update checker.
-if (class_exists('\\Puc_v4_Factory')) {
-    Puc_v4_Factory::buildUpdateChecker(
-        'https://github.com/planetoftheweb/flex-videos/',
-        __FILE__,
-        'flex-videos'
-    );
 }
 
 // Register Gutenberg block.
@@ -192,70 +182,70 @@ add_action('admin_init', 'flex_videos_settings_init');
 function flex_videos_api_key_field_html() {
     $api_key = get_option('flex_videos_api_key');
     echo '<input type="text" name="flex_videos_api_key" value="' . esc_attr($api_key) . '" size="50">';
-    echo '<p class="description">' . __('You can get a free API key from the <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a>.', 'flex-videos') . '</p>';
+    echo '<p class="description">' . wp_kses(__('You can get a free API key from the <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a>.', 'flex-videos'), array('a' => array('href' => array(), 'target' => array()))) . '</p>';
 }
 function flex_videos_channel_id_field_html() {
     $channel_id = get_option('flex_videos_channel_id');
     echo '<input type="text" name="flex_videos_channel_id" value="' . esc_attr($channel_id) . '" size="50">';
-    echo '<p class="description">' . __('Find your channel ID at <a href="https://www.youtube.com/account_advanced" target="_blank">YouTube Advanced Settings</a>. It looks like UCxxxxxxxxxxxxxxxxxx.', 'flex-videos') . '</p>';
+    echo '<p class="description">' . wp_kses(__('Find your channel ID at <a href="https://www.youtube.com/account_advanced" target="_blank">YouTube Advanced Settings</a>. It looks like UCxxxxxxxxxxxxxxxxxx.', 'flex-videos'), array('a' => array('href' => array(), 'target' => array()))) . '</p>';
 }
 function flex_videos_show_channel_link_field_html() {
     $show = get_option('flex_videos_show_channel_link', '1');
-    echo '<input type="checkbox" name="flex_videos_show_channel_link" value="1"' . checked($show, '1', false) . '> ' . __('Show a link to the YouTube channel below the grid.', 'flex-videos');
+    echo '<input type="checkbox" name="flex_videos_show_channel_link" value="1"' . checked($show, '1', false) . '> ' . esc_html__('Show a link to the YouTube channel below the grid.', 'flex-videos');
 }
 function flex_videos_columns_field_html() {
     $columns = get_option('flex_videos_columns', 3);
     echo '<input type="number" name="flex_videos_columns" value="' . esc_attr($columns) . '" min="1" max="10">';
-    echo '<p class="description">' . __('Number of columns to display in the grid (default: 3).', 'flex-videos') . '</p>';
+    echo '<p class="description">' . esc_html__('Number of columns to display in the grid (default: 3).', 'flex-videos') . '</p>';
 }
 function flex_videos_gap_field_html() {
     $gap = get_option('flex_videos_gap', 15);
     echo '<input type="number" name="flex_videos_gap" value="' . esc_attr($gap) . '" min="0" max="100"> px';
-    echo '<p class="description">' . __('Space between thumbnails in pixels (default: 15).', 'flex-videos') . '</p>';
+    echo '<p class="description">' . esc_html__('Space between thumbnails in pixels (default: 15).', 'flex-videos') . '</p>';
 }
 function flex_videos_num_videos_field_html() {
     $num = get_option('flex_videos_num_videos', 9);
     echo '<input type="number" name="flex_videos_num_videos" value="' . esc_attr($num) . '" min="1" max="50">';
-    echo '<p class="description">' . __('Number of videos to show in the grid (default: 9).', 'flex-videos') . '</p>';
+    echo '<p class="description">' . esc_html__('Number of videos to show in the grid (default: 9).', 'flex-videos') . '</p>';
 }
 function flex_videos_custom_grid_title_field_html() {
     $val = get_option('flex_videos_custom_grid_title', '');
     echo '<input type="text" name="flex_videos_custom_grid_title" value="' . esc_attr($val) . '" size="50">';
-    echo '<p class="description">' . __('Override the grid title with your own text (optional).', 'flex-videos') . '</p>';
+    echo '<p class="description">' . esc_html__('Override the grid title with your own text (optional).', 'flex-videos') . '</p>';
 }
 function flex_videos_custom_grid_desc_field_html() {
     $val = get_option('flex_videos_custom_grid_desc', '');
     ?>
     <textarea name="flex_videos_custom_grid_desc" rows="3" cols="50"><?php echo esc_textarea($val); ?></textarea>
-    <p class="description"><?php echo __('Override the grid description with your own text (optional).', 'flex-videos'); ?></p>
+    <p class="description"><?php echo esc_html__('Override the grid description with your own text (optional).', 'flex-videos'); ?></p>
     <?php
 }
 function flex_videos_channel_link_text_field_html() {
     $val = get_option('flex_videos_channel_link_text', __('Visit Channel', 'flex-videos'));
     echo '<input type="text" name="flex_videos_channel_link_text" value="' . esc_attr($val) . '" size="30">';
-    echo '<p class="description">' . __('Customize the channel link text (default: Visit Channel). You can use {channel} to insert the channel name.', 'flex-videos') . '</p>';
+    echo '<p class="description">' . esc_html__('Customize the channel link text (default: Visit Channel). You can use {channel} to insert the channel name.', 'flex-videos') . '</p>';
 }
 function flex_videos_show_grid_title_field_html() {
     $show = get_option('flex_videos_show_grid_title', '1');
-    echo '<input type="checkbox" name="flex_videos_show_grid_title" value="1"' . checked($show, '1', false) . '> ' . __('Show the grid title above the video grid.', 'flex-videos');
+    echo '<input type="checkbox" name="flex_videos_show_grid_title" value="1"' . checked($show, '1', false) . '> ' . esc_html__('Show the grid title above the video grid.', 'flex-videos');
 }
 function flex_videos_show_grid_description_field_html() {
     $show = get_option('flex_videos_show_grid_description', '1');
-    echo '<input type="checkbox" name="flex_videos_show_grid_description" value="1"' . checked($show, '1', false) . '> ' . __('Show the grid description below the title.', 'flex-videos');
+    echo '<input type="checkbox" name="flex_videos_show_grid_description" value="1"' . checked($show, '1', false) . '> ' . esc_html__('Show the grid description below the title.', 'flex-videos');
 }
 function flex_videos_button_color_field_html() {
     $color = get_option('flex_videos_button_color', '#ff8c00');
     ?>
     <input type="color" name="flex_videos_button_color" value="<?php echo esc_attr($color); ?>" />
-    <p class="description"><?php echo __('Choose the background color for the "Visit Channel" button (default: orange).', 'flex-videos'); ?></p>
+    <p class="description"><?php echo esc_html__('Choose the background color for the "Visit Channel" button (default: orange).', 'flex-videos'); ?></p>
     <?php
 }
 
 function flex_videos_button_hover_color_field_html() {
-    $color = get_option('flex_videos_button_hover_color', '#e67c00');
+    $color = get_option('flex_videos_button_hover_color', '#e67e00');
     ?>
     <input type="color" name="flex_videos_button_hover_color" value="<?php echo esc_attr($color); ?>" />
-    <p class="description"><?php echo __('Choose the background color when hovering over the button (default: darker orange).', 'flex-videos'); ?></p>
+    <p class="description"><?php echo esc_html__('Choose the background color when hovering over the button (default: darker orange).', 'flex-videos'); ?></p>
     <?php
 }
 
@@ -263,7 +253,7 @@ function flex_videos_button_text_color_field_html() {
     $color = get_option('flex_videos_button_text_color', '#ffffff');
     ?>
     <input type="color" name="flex_videos_button_text_color" value="<?php echo esc_attr($color); ?>" />
-    <p class="description"><?php echo __('Choose the text color for the button (default: white).', 'flex-videos'); ?></p>
+    <p class="description"><?php echo esc_html__('Choose the text color for the button (default: white).', 'flex-videos'); ?></p>
     <?php
 }
 
@@ -288,7 +278,7 @@ function flex_videos_clear_cache() {
         update_option('flex_videos_cache_version', $cache_version + 1);
         
         add_action('admin_notices', function() {
-            echo '<div class="notice notice-success is-dismissible"><p>' . __('YouTube cache cleared successfully!', 'flex-videos') . '</p></div>';
+            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('YouTube cache cleared successfully!', 'flex-videos') . '</p></div>';
         });
     }
     
@@ -303,7 +293,7 @@ function flex_videos_clear_cache() {
         do_action('admin_init');
         
         add_action('admin_notices', function() {
-            echo '<div class="notice notice-success is-dismissible"><p>' . __('Plugin settings reset successfully! Please reconfigure your display options.', 'flex-videos') . '</p></div>';
+            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Plugin settings reset successfully! Please reconfigure your display options.', 'flex-videos') . '</p></div>';
         });
     }
 }
@@ -344,8 +334,8 @@ function flex_videos_settings_page_html() {
             ?>
         </form>
         <hr>
-        <h2><?php _e('API Testing', 'flex-videos'); ?></h2>
-        <p><?php _e('Test if your API key is working correctly:', 'flex-videos'); ?></p>
+        <h2><?php esc_html_e('API Testing', 'flex-videos'); ?></h2>
+        <p><?php esc_html_e('Test if your API key is working correctly:', 'flex-videos'); ?></p>
         <form method="post" action="">
             <?php wp_nonce_field('flex_videos_test_api', 'flex_videos_test_nonce'); ?>
             <p>
@@ -353,19 +343,18 @@ function flex_videos_settings_page_html() {
             </p>
         </form>
         <hr>
-        <h2><?php _e('Cache Management', 'flex-videos'); ?></h2>
-        <p><?php _e('The plugin caches YouTube results for 1 hour to improve performance. You can manually clear this cache using the button below.', 'flex-videos'); ?></p>
+        <h2><?php esc_html_e('Cache Management', 'flex-videos'); ?></h2>
+        <p><?php esc_html_e('The plugin caches YouTube results for 1 hour to improve performance. You can manually clear this cache using the button below.', 'flex-videos'); ?></p>
         <form method="post" action="">
             <?php wp_nonce_field('flex_videos_clear_cache', 'flex_videos_cache_nonce'); ?>
             <p>
-                <input type="submit" name="clear_cache" class="button button-secondary" value="Clear YouTube Cache">
                 <input type="submit" name="clear_cache" class="button button-secondary" value="<?php echo esc_attr(__('Clear YouTube Cache', 'flex-videos')); ?>">
             </p>
         </form>
         
         <hr>
-        <h2><?php _e('Plugin Settings Reset', 'flex-videos'); ?></h2>
-        <p><strong><?php _e('Warning:', 'flex-videos'); ?></strong> <?php _e("This will reset all plugin display settings to default values and force refresh the admin interface. Use this if you're experiencing display issues in the settings page.", 'flex-videos'); ?></p>
+        <h2><?php esc_html_e('Plugin Settings Reset', 'flex-videos'); ?></h2>
+        <p><strong><?php esc_html_e('Warning:', 'flex-videos'); ?></strong> <?php esc_html_e("This will reset all plugin display settings to default values and force refresh the admin interface. Use this if you're experiencing display issues in the settings page.", 'flex-videos'); ?></p>
         <form method="post" action="">
             <?php wp_nonce_field('flex_videos_reset_settings', 'flex_videos_reset_nonce'); ?>
             <p>
@@ -449,6 +438,7 @@ function flex_videos_grid_shortcode($atts) {
         $response = wp_remote_get($api_url);
         if (is_wp_error($response)) {
             if (current_user_can('manage_options')) {
+                // translators: %s is the error message from the API request
                 return sprintf(__('Error: API request failed - %s', 'flex-videos'), $response->get_error_message());
             }
             return '';
@@ -459,7 +449,8 @@ function flex_videos_grid_shortcode($atts) {
                 $response_body = wp_remote_retrieve_body($response);
                 $error_data = json_decode($response_body, true);
                 $error_message = $error_data['error']['message'] ?? __('Unknown API error', 'flex-videos');
-                return sprintf(__('Error: YouTube API returned %s - %s', 'flex-videos'), $response_code, $error_message);
+                // translators: %1$s is the response code, %2$s is the error message
+                return sprintf(__('Error: YouTube API returned %1$s - %2$s', 'flex-videos'), $response_code, $error_message);
             }
             return '';
         }
@@ -608,7 +599,7 @@ function flex_videos_test_api_key() {
         $channel_id = get_option('flex_videos_channel_id');
         if (empty($api_key) || empty($channel_id)) {
             add_action('admin_notices', function() {
-                echo '<div class="notice notice-error is-dismissible"><p>' . __('Please set your API key and channel ID first!', 'flex-videos') . '</p></div>';
+                echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('Please set your API key and channel ID first!', 'flex-videos') . '</p></div>';
             });
             return;
         }
@@ -624,16 +615,18 @@ function flex_videos_test_api_key() {
             if (!empty($data['items'])) {
                 $channel_title = $data['items'][0]['snippet']['title'];
                 add_action('admin_notices', function() use ($channel_title) {
-                    echo '<div class="notice notice-success is-dismissible"><p>' . sprintf(__('API key is working! Found channel: %s', 'flex-videos'), esc_html($channel_title)) . '</p></div>';
+                    // translators: %s is the channel name
+                    echo '<div class="notice notice-success is-dismissible"><p>' . sprintf(esc_html__('API key is working! Found channel: %s', 'flex-videos'), esc_html($channel_title)) . '</p></div>';
                 });
             } else {
                 add_action('admin_notices', function() {
-                    echo '<div class="notice notice-error is-dismissible"><p>' . __('Channel not found with this ID.', 'flex-videos') . '</p></div>';
+                    echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('Channel not found with this ID.', 'flex-videos') . '</p></div>';
                 });
             }
         } else {
             add_action('admin_notices', function() use ($response_code) {
-                echo '<div class="notice notice-error is-dismissible"><p>' . sprintf(__('API Error: %s', 'flex-videos'), esc_html($response_code)) . '</p></div>';
+                // translators: %s is the API error response code
+                echo '<div class="notice notice-error is-dismissible"><p>' . sprintf(esc_html__('API Error: %s', 'flex-videos'), esc_html($response_code)) . '</p></div>';
             });
         }
     }
