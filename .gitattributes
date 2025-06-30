@@ -17,6 +17,9 @@
 /package.json export-ignore
 /package-lock.json export-ignore
 /webpack.config.js export-ignore
+/assets/css/flex-videos.css export-ignore
+/assets/js/flex-videos.js export-ignore
+/assets/js/flex-videos-flyout.js export-ignore
 
 # Language files
 *.po diff=localizablestrings
