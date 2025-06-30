@@ -457,8 +457,21 @@ function flex_videos_grid_shortcode($atts) {
         if (!$grid_thumb_url) continue;
         $video_url = 'https://www.youtube.com/watch?v=' . esc_attr($video_id);
         $output_html .= '<div class="flex-videos-item flex-videos-item-has-overlay" tabindex="0" data-title="' . esc_attr($overlay_title) . '" data-desc="' . esc_attr($overlay_desc) . '" data-thumb="' . esc_url($overlay_thumb_url) . '" data-url="' . esc_url($video_url) . '">';
-        $output_html .= '<a href="' . $video_url . '" target="_blank" rel="noopener noreferrer" class="flex-videos-thumb-link">';
-        $output_html .= '<img src="' . $grid_thumb_url . '" alt="YouTube Video Thumbnail" class="flex-videos-thumb">';
+        $output_html .= '<a href="' . esc_url($video_url) . '" target="_blank" rel="noopener noreferrer" class="flex-videos-thumb-link">';
+        // Use WordPress-style image attributes for external YouTube thumbnail
+        $img_attrs = array(
+            'src' => esc_url($grid_thumb_url),
+            /* translators: %s is the video title */
+            'alt' => esc_attr(sprintf(__('YouTube video thumbnail: %s', 'flex-videos'), $title)),
+            'class' => 'flex-videos-thumb',
+            'loading' => 'lazy',
+            'decoding' => 'async'
+        );
+        $output_html .= '<img';
+        foreach ($img_attrs as $attr => $value) {
+            $output_html .= ' ' . $attr . '="' . $value . '"';
+        }
+        $output_html .= '>';
         $output_html .= '</a>';
         $output_html .= '</div>';
     }
