@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2025-06-30
+
+### Fixed
+- WordPress plugin checker compliance issues
+- Added proper sanitization callbacks to all register_setting() calls
+- Replaced direct database queries with WordPress transient functions
+- Improved cache clearing system using version-based invalidation
+- Added proper output escaping for security compliance
+- Removed invalid "Network" header from plugin file
+
+### Security
+- Enhanced input sanitization for all settings fields
+- Improved output escaping throughout the plugin
+- Replaced direct SQL queries with WordPress API functions
+
 ## [1.0.0] - 2025-06-29
 
 ### Added

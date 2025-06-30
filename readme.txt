@@ -3,7 +3,7 @@ Contributors: rayvillalobos
 Tags: youtube, video, grid, responsive, embed
 Requires at least: 5.0
 Tested up to: 6.5
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 Requires PHP: 7.4
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -71,6 +71,14 @@ Yes, you can use the hashtag attribute in the shortcode to filter videos contain
 
 == Changelog ==
 
+= 1.0.1 =
+* Fixed WordPress plugin checker compliance issues
+* Added proper sanitization to all settings fields
+* Replaced direct database queries with WordPress transient functions
+* Improved cache clearing system with version-based invalidation
+* Enhanced security with proper output escaping
+* Removed invalid plugin header fields
+
 = 1.0.0 =
 * Initial release
 * YouTube Grid Display with responsive layout
@@ -81,6 +89,9 @@ Yes, you can use the hashtag attribute in the shortcode to filter videos contain
 * WordPress coding standards compliance
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+Important security and compliance update. Fixes WordPress plugin checker issues and improves overall plugin security.
 
 = 1.0.0 =
 Initial release of Flex Videos plugin.
