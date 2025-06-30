@@ -19,6 +19,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Register Gutenberg block.
+require_once plugin_dir_path( __FILE__ ) . 'blocks/register-block.php';
+
 // --- PLUGIN SETTINGS & CACHE HANDLING ---
 
 function flex_videos_add_admin_menu() {

@@ -20,5 +20,12 @@
     "responsive",
     "embed",
     "api"
-  ]
+  ],
+  "scripts": {
+    "build": "wp-scripts build",
+    "start": "wp-scripts start"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^30.19.0"
+  }
 }

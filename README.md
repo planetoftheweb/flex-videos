@@ -51,6 +51,18 @@ cd /wp-content/plugins/
 git clone https://github.com/planetoftheweb/flex-videos.git
 ```
 
+### Building the Block
+
+This plugin uses `@wordpress/scripts` for compiling the Gutenberg block code.
+Run the following commands from the plugin directory:
+
+```bash
+npm install
+npm run build
+```
+
+During development you can use `npm start` to watch for changes.
+
 ## Configuration
 
 Go to **Settings > Flex Videos** in WordPress admin:
@@ -83,6 +95,8 @@ Go to **Settings > Flex Videos** in WordPress admin:
 - **Reset Plugin Settings** - Restore all settings to defaults
 
 ## Usage
+
+You can insert the **Flex Videos Grid** block from the block editor or use the shortcode as documented below.
 
 ### Video Grid Shortcode
 
