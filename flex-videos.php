@@ -12,7 +12,6 @@
  * Requires at least: 5.0
  * Tested up to:      6.5
  * Requires PHP:      7.4
- * Network:           false
  */
 
 // Block direct access to the file.
@@ -35,8 +34,8 @@ function flex_videos_settings_init() {
         null,
         'flex_videos_settings_group'
     );
-    register_setting('flex_videos_settings_group', 'flex_videos_api_key');
-    register_setting('flex_videos_settings_group', 'flex_videos_channel_id');
+    register_setting('flex_videos_settings_group', 'flex_videos_api_key', 'sanitize_text_field');
+    register_setting('flex_videos_settings_group', 'flex_videos_channel_id', 'sanitize_text_field');
     add_settings_field(
         'flex_videos_api_key',
         'YouTube Data API Key',
@@ -59,13 +58,13 @@ function flex_videos_settings_init() {
         null,
         'flex_videos_settings_group'
     );
-    register_setting('flex_videos_settings_group', 'flex_videos_columns');
-    register_setting('flex_videos_settings_group', 'flex_videos_gap');
-    register_setting('flex_videos_settings_group', 'flex_videos_show_grid_title');
-    register_setting('flex_videos_settings_group', 'flex_videos_show_grid_description');
-    register_setting('flex_videos_settings_group', 'flex_videos_num_videos');
-    register_setting('flex_videos_settings_group', 'flex_videos_custom_grid_title');
-    register_setting('flex_videos_settings_group', 'flex_videos_custom_grid_desc');
+    register_setting('flex_videos_settings_group', 'flex_videos_columns', 'intval');
+    register_setting('flex_videos_settings_group', 'flex_videos_gap', 'intval');
+    register_setting('flex_videos_settings_group', 'flex_videos_show_grid_title', 'sanitize_text_field');
+    register_setting('flex_videos_settings_group', 'flex_videos_show_grid_description', 'sanitize_text_field');
+    register_setting('flex_videos_settings_group', 'flex_videos_num_videos', 'intval');
+    register_setting('flex_videos_settings_group', 'flex_videos_custom_grid_title', 'sanitize_text_field');
+    register_setting('flex_videos_settings_group', 'flex_videos_custom_grid_desc', 'sanitize_textarea_field');
     add_settings_field(
         'flex_videos_columns',
         'Number of Columns (Grid)',
@@ -123,11 +122,11 @@ function flex_videos_settings_init() {
         null,
         'flex_videos_settings_group'
     );
-    register_setting('flex_videos_settings_group', 'flex_videos_show_channel_link');
-    register_setting('flex_videos_settings_group', 'flex_videos_channel_link_text');
-    register_setting('flex_videos_settings_group', 'flex_videos_button_color');
-    register_setting('flex_videos_settings_group', 'flex_videos_button_hover_color');
-    register_setting('flex_videos_settings_group', 'flex_videos_button_text_color');
+    register_setting('flex_videos_settings_group', 'flex_videos_show_channel_link', 'sanitize_text_field');
+    register_setting('flex_videos_settings_group', 'flex_videos_channel_link_text', 'sanitize_text_field');
+    register_setting('flex_videos_settings_group', 'flex_videos_button_color', 'sanitize_hex_color');
+    register_setting('flex_videos_settings_group', 'flex_videos_button_hover_color', 'sanitize_hex_color');
+    register_setting('flex_videos_settings_group', 'flex_videos_button_text_color', 'sanitize_hex_color');
     add_settings_field(
         'flex_videos_show_channel_link',
         'Show Channel Link',
@@ -247,11 +246,23 @@ function flex_videos_button_text_color_field_html() {
 // Add cache clearing functionality
 function flex_videos_clear_cache() {
     if (isset($_POST['clear_cache']) && check_admin_referer('flex_videos_clear_cache', 'flex_videos_cache_nonce')) {
-        global $wpdb;
-        $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_flex_videos_search_cache_%'");
-        $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_flex_videos_search_cache_%'");
-        $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_flex_videos_channel_info_%'");
-        $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_flex_videos_channel_info_%'");
+        // Clear all flex_videos transients using WordPress functions
+        $transients_to_clear = array();
+        
+        // Get all transient keys with our prefix
+        $api_key = get_option('flex_videos_api_key');
+        $channel_id = get_option('flex_videos_channel_id');
+        
+        // Clear common cache keys
+        if ($channel_id) {
+            delete_transient('flex_videos_channel_info_' . $channel_id);
+        }
+        
+        // Clear search cache (we'll use a different approach since we can't easily enumerate all hashtag combinations)
+        // Instead, we'll increment a cache version to invalidate all old caches
+        $cache_version = get_option('flex_videos_cache_version', 1);
+        update_option('flex_videos_cache_version', $cache_version + 1);
+        
         add_action('admin_notices', function() {
             echo '<div class="notice notice-success is-dismissible"><p>YouTube cache cleared successfully!</p></div>';
         });
@@ -345,7 +356,8 @@ function flex_videos_grid_shortcode($atts) {
     $gap = intval($attributes['gap']);
     $max_to_display = intval($attributes['count']);
     $hashtag = sanitize_text_field($attributes['hashtag']);
-    $transient_key = 'flex_videos_search_cache_' . md5($hashtag);
+    $cache_version = get_option('flex_videos_cache_version', 1);
+    $transient_key = 'flex_videos_search_cache_' . md5($hashtag . '_v' . $cache_version);
     $cached_data = get_transient($transient_key);
     // Fetch channel info (name and description)
     $channel_info = get_transient('flex_videos_channel_info_' . $channel_id);
@@ -561,7 +573,7 @@ function flex_videos_test_api_key() {
             }
         } else {
             add_action('admin_notices', function() use ($response_code) {
-                echo '<div class="notice notice-error is-dismissible"><p>API Error: ' . $response_code . '</p></div>';
+                echo '<div class="notice notice-error is-dismissible"><p>API Error: ' . esc_html($response_code) . '</p></div>';
             });
         }
     }
