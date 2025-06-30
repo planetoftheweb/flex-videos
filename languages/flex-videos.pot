@@ -1,14 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the Flex Videos package.
-# Ray Villalobos <your-email@example.com>, YEAR.
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Flex Videos 1.0.1\n"
-"Report-Msgid-Bugs-To: https://github.com/yourusername/flex-videos/issues\n"
-"POT-Creation-Date: 2025-06-28 12:00+0000\n"
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-06-30 14:12+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,64 +16,269 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: flex-videos.php:6
-msgid "Displays the latest YouTube videos from a channel, with an option to filter by a hashtag in the shortcode."
+#: flex-videos.php:26
+msgid "Flex Videos Settings"
 msgstr ""
 
-#: flex-videos.php:21
-msgid "YouTube Videos Settings"
+#: flex-videos.php:27
+msgid "Flex Videos"
 msgstr ""
 
-#: flex-videos.php:21
-msgid "YouTube Videos"
+#: flex-videos.php:39
+msgid "YouTube API Configuration"
 msgstr ""
 
-#: flex-videos.php:30
-msgid "API Configuration"
-msgstr ""
-
-#: flex-videos.php:37
+#: flex-videos.php:47
 msgid "YouTube Data API Key"
 msgstr ""
 
-#: flex-videos.php:44
+#: flex-videos.php:54
 msgid "YouTube Channel ID"
 msgstr ""
 
-msgid "Settings"
+#: flex-videos.php:63
+msgid "Grid Display Options"
 msgstr ""
 
-msgid "Reset Cache"
+#: flex-videos.php:76
+msgid "Number of Columns (Grid)"
 msgstr ""
 
-msgid "Cache has been reset successfully."
+#: flex-videos.php:83
+msgid "Gap Between Thumbnails (px)"
 msgstr ""
 
-msgid "Error resetting cache."
+#: flex-videos.php:90
+msgid "Number of Videos to Show"
 msgstr ""
 
-msgid "API Key"
+#: flex-videos.php:97
+msgid "Show Grid Title"
 msgstr ""
 
-msgid "Channel ID"
+#: flex-videos.php:104
+msgid "Custom Grid Title"
 msgstr ""
 
-msgid "Save Changes"
+#: flex-videos.php:111
+msgid "Show Grid Description"
 msgstr ""
 
-msgid "Video"
+#: flex-videos.php:118
+msgid "Custom Grid Description"
 msgstr ""
 
-msgid "Videos"
+#: flex-videos.php:127
+msgid "Channel Link Options"
 msgstr ""
 
-msgid "Loading..."
+#: flex-videos.php:138
+msgid "Show Channel Link"
 msgstr ""
 
-msgid "No videos found."
+#: flex-videos.php:145
+msgid "Channel Link Text"
 msgstr ""
 
-msgid "Error loading videos."
+#: flex-videos.php:152
+msgid "Button Background Color"
+msgstr ""
+
+#: flex-videos.php:159
+msgid "Button Hover Color"
+msgstr ""
+
+#: flex-videos.php:166
+msgid "Button Text Color"
+msgstr ""
+
+#: flex-videos.php:177
+msgid ""
+"You can get a free API key from the <a href=\"https://console.cloud.google."
+"com/\" target=\"_blank\">Google Cloud Console</a>."
+msgstr ""
+
+#: flex-videos.php:182
+msgid ""
+"Find your channel ID at <a href=\"https://www.youtube.com/account_advanced\" "
+"target=\"_blank\">YouTube Advanced Settings</a>. It looks like "
+"UCxxxxxxxxxxxxxxxxxx."
+msgstr ""
+
+#: flex-videos.php:186
+msgid "Show a link to the YouTube channel below the grid."
+msgstr ""
+
+#: flex-videos.php:191
+msgid "Number of columns to display in the grid (default: 3)."
+msgstr ""
+
+#: flex-videos.php:196
+msgid "Space between thumbnails in pixels (default: 15)."
+msgstr ""
+
+#: flex-videos.php:201
+msgid "Number of videos to show in the grid (default: 9)."
+msgstr ""
+
+#: flex-videos.php:206
+msgid "Override the grid title with your own text (optional)."
+msgstr ""
+
+#: flex-videos.php:212
+msgid "Override the grid description with your own text (optional)."
+msgstr ""
+
+#: flex-videos.php:216 flex-videos.php:352
+msgid "Visit Channel"
+msgstr ""
+
+#: flex-videos.php:218
+msgid ""
+"Customize the channel link text (default: Visit Channel). You can use "
+"{channel} to insert the channel name."
+msgstr ""
+
+#: flex-videos.php:222
+msgid "Show the grid title above the video grid."
+msgstr ""
+
+#: flex-videos.php:226
+msgid "Show the grid description below the title."
+msgstr ""
+
+#: flex-videos.php:232
+msgid ""
+"Choose the background color for the \"Visit Channel\" button (default: "
+"orange)."
+msgstr ""
+
+#: flex-videos.php:240
+msgid ""
+"Choose the background color when hovering over the button (default: darker "
+"orange)."
+msgstr ""
+
+#: flex-videos.php:248
+msgid "Choose the text color for the button (default: white)."
+msgstr ""
+
+#: flex-videos.php:273
+msgid "YouTube cache cleared successfully!"
+msgstr ""
+
+#: flex-videos.php:288
+msgid ""
+"Plugin settings reset successfully! Please reconfigure your display options."
+msgstr ""
+
+#: flex-videos.php:303
+msgid "Save Settings"
+msgstr ""
+
+#: flex-videos.php:307
+msgid "API Testing"
+msgstr ""
+
+#: flex-videos.php:308
+msgid "Test if your API key is working correctly:"
+msgstr ""
+
+#: flex-videos.php:312
+msgid "Test API Key"
+msgstr ""
+
+#: flex-videos.php:316
+msgid "Cache Management"
+msgstr ""
+
+#: flex-videos.php:317
+msgid ""
+"The plugin caches YouTube results for 1 hour to improve performance. You can "
+"manually clear this cache using the button below."
+msgstr ""
+
+#: flex-videos.php:321
+msgid "Clear YouTube Cache"
+msgstr ""
+
+#: flex-videos.php:326
+msgid "Plugin Settings Reset"
+msgstr ""
+
+#: flex-videos.php:327
+msgid "Warning:"
+msgstr ""
+
+#: flex-videos.php:327
+msgid ""
+"This will reset all plugin display settings to default values and force "
+"refresh the admin interface. Use this if you're experiencing display issues "
+"in the settings page."
+msgstr ""
+
+#: flex-videos.php:331
+msgid "Reset Plugin Settings"
+msgstr ""
+
+#: flex-videos.php:331
+msgid "This will reset all your display settings. Are you sure?"
+msgstr ""
+
+#: flex-videos.php:389
+msgid "Latest Videos"
+msgstr ""
+
+#: flex-videos.php:411
+#, php-format
+msgid "Error: API request failed - %s"
+msgstr ""
+
+#: flex-videos.php:420
+msgid "Unknown API error"
+msgstr ""
+
+#: flex-videos.php:421
+#, php-format
+msgid "Error: YouTube API returned %s - %s"
+msgstr ""
+
+#: flex-videos.php:432
+msgid "No videos found for this channel."
+msgstr ""
+
+#: flex-videos.php:471
+#, php-format
+msgid "YouTube video thumbnail: %s"
+msgstr ""
+
+#: flex-videos.php:536
+msgid "Invalid YouTube URL."
+msgstr ""
+
+#: flex-videos.php:543
+msgid "Invalid Vimeo URL."
+msgstr ""
+
+#: flex-videos.php:546
+msgid "Unsupported video URL."
+msgstr ""
+
+#: flex-videos.php:570
+msgid "Please set your API key and channel ID first!"
+msgstr ""
+
+#: flex-videos.php:586
+#, php-format
+msgid "API key is working! Found channel: %s"
+msgstr ""
+
+#: flex-videos.php:590
+msgid "Channel not found with this ID."
+msgstr ""
+
+#: flex-videos.php:595
+#, php-format
+msgid "API Error: %s"
 msgstr ""
