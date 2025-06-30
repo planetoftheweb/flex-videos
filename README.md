@@ -63,6 +63,12 @@ npm run build
 
 During development you can use `npm start` to watch for changes.
 
+### Releasing Updates
+
+When you are ready to publish a new version, create a Git tag matching the
+version number and push it to GitHub. WordPress sites running this plugin will
+detect the tagged release and offer the update automatically.
+
 ## Configuration
 
 Go to **Settings > Flex Videos** in WordPress admin:

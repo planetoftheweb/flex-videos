@@ -10,13 +10,28 @@
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       flex-videos
  * Requires at least: 5.0
- * Tested up to:      6.5
+ * Tested up to:      6.8
  * Requires PHP:      7.4
+ * Update URI:        https://github.com/planetoftheweb/flex-videos/
  */
 
 // Block direct access to the file.
 if (!defined('ABSPATH')) {
     exit;
+}
+
+// Load Composer dependencies if available.
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+}
+
+// Plugin update checker.
+if (class_exists('\\Puc_v4_Factory')) {
+    Puc_v4_Factory::buildUpdateChecker(
+        'https://github.com/planetoftheweb/flex-videos/',
+        __FILE__,
+        'flex-videos'
+    );
 }
 
 // Register Gutenberg block.
