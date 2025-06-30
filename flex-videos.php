@@ -439,14 +439,14 @@ function flex_videos_grid_shortcode($atts) {
         $overlay_desc = isset($snippet['description']) ? esc_html($snippet['description']) : '';
         $title = esc_html($title);
         $desc = esc_html($desc);
-        $thumbs = $snippet['thumbnails'];
-        $thumb_url = isset($thumbs['medium']['url']) ? esc_url($thumbs['medium']['url']) : (isset($thumbs['default']['url']) ? esc_url($thumbs['default']['url']) : '');
-        $large_thumb_url = isset($thumbs['high']['url']) ? esc_url($thumbs['high']['url']) : $thumb_url;
-        if (!$thumb_url) continue;
+        // Use optimized thumbnail URLs: medium quality for grid, max quality for overlay
+        $grid_thumb_url = 'https://img.youtube.com/vi/' . $video_id . '/mqdefault.jpg';
+        $overlay_thumb_url = 'https://img.youtube.com/vi/' . $video_id . '/maxresdefault.jpg';
+        if (!$grid_thumb_url) continue;
         $video_url = 'https://www.youtube.com/watch?v=' . esc_attr($video_id);
-        $output_html .= '<div class="flex-videos-item flex-videos-item-has-overlay" tabindex="0" data-title="' . esc_attr($overlay_title) . '" data-desc="' . esc_attr($overlay_desc) . '" data-thumb="' . esc_url($large_thumb_url) . '" data-url="' . esc_url($video_url) . '">';
+        $output_html .= '<div class="flex-videos-item flex-videos-item-has-overlay" tabindex="0" data-title="' . esc_attr($overlay_title) . '" data-desc="' . esc_attr($overlay_desc) . '" data-thumb="' . esc_url($overlay_thumb_url) . '" data-url="' . esc_url($video_url) . '">';
         $output_html .= '<a href="' . $video_url . '" target="_blank" rel="noopener noreferrer" class="flex-videos-thumb-link">';
-        $output_html .= '<img src="' . $thumb_url . '" alt="YouTube Video Thumbnail" class="flex-videos-thumb">';
+        $output_html .= '<img src="' . $grid_thumb_url . '" alt="YouTube Video Thumbnail" class="flex-videos-thumb">';
         $output_html .= '</a>';
         $output_html .= '</div>';
     }

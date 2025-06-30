@@ -16,6 +16,7 @@ This document outlines project-specific rules for contributions made by AI assis
 ## Documentation
 - Always check that documentation (README, changelog, help text, etc.) is updated and accurate whenever you make changes to the codebase.
 - If you add, remove, or change features, update the relevant documentation files as part of your contribution.
+- Do not use emojis in any documentation, code comments, or user-facing text. Keep all content professional and emoji-free.
 
 ## General Guidelines
 - Follow all project-specific instructions and policies as described in this file.

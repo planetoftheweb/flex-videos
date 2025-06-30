@@ -1,29 +1,29 @@
 # Flex Videos
 
-A WordPress plugin for displaying responsive YouTube video grids with modern flyout overlays and customizable styling.
+[![Flex Videos](assets/images/Demo_Screenshot.png)](https://itsplaitime.com)
+A WordPress plugin for displaying responsive YouTube video grids with modern flyout overlays and customizable styling. Full demo on [itsPlaiTime.com](https://itsplaitime.com/)
 
-## 🌟 Key Features
+## Key Features
 
-- **🎥 YouTube Grid Display** - Show video thumbnails from any YouTube channel in a responsive grid
-- **✨ Modern Flyout Overlay** - Hover over thumbnails to see an animated overlay with full video details
-- **🎨 Customizable Button Colors** - Admin color pickers for channel link button styling
-- **📱 Responsive Design** - Looks great on all devices with configurable column layouts
-- **⚡ Built-in Caching** - API responses are cached for optimal performance
-- **🖼️ Clean Thumbnails** - CSS cropping removes YouTube's black bars automatically
-- **🛠️ WordPress Compatible** - Follows WordPress coding standards and best practices
+- **YouTube Grid Display** - Show video thumbnails from any YouTube channel in a responsive grid
+- **Modern Flyout Overlay** - Hover over thumbnails to see an animated overlay with full video details
+- **Customizable Button Colors** - Admin color pickers for channel link button styling
+- **Responsive Design** - Looks great on all devices with configurable column layouts
+- **Built-in Caching** - API responses are cached for optimal performance
+- **Optimized Thumbnails** - Medium resolution for grid performance, high-resolution for overlay quality
+- **WordPress Compatible** - Follows WordPress coding standards and best practices
 
-## ✨ What Makes It Special
+## What Makes It Special
 
 ### Smart Overlay System
 - **Fade-in animation** with smooth transitions
 - **Never clipped** - automatically repositions at viewport edges  
-- **Large thumbnail preview** with full title and description text
+- **High-resolution thumbnail** preview with full title and description text
 - **Left-aligned layout** for consistent, professional appearance
 
 ### Professional Grid Layout
 - **Semantic HTML** wrapped in `wp-block-group` for block theme compatibility
 - **Optimized spacing** with separate controls for grid gaps
-- **Cropped thumbnails** using `object-fit: cover` to remove black bars
 - **Configurable columns** (1-10 columns supported)
 
 ### Admin-Friendly Customization
@@ -32,7 +32,7 @@ A WordPress plugin for displaying responsive YouTube video grids with modern fly
 - **Custom text options** for grid title, description, and button text
 - **Cache management** and settings reset tools for troubleshooting
 
-## 📥 Installation
+## Installation
 
 ### WordPress Admin (Recommended)
 1. Download the latest release ZIP from [GitHub Releases](https://github.com/planetoftheweb/flex-videos/releases)
@@ -51,38 +51,38 @@ cd /wp-content/plugins/
 git clone https://github.com/planetoftheweb/flex-videos.git
 ```
 
-## ⚙️ Configuration
+## Configuration
 
 Go to **Settings > Flex Videos** in WordPress admin:
 
-### 🔑 API Configuration (Required)
+### API Configuration (Required)
 - **YouTube Data API Key** - Get free key from [Google Cloud Console](https://console.cloud.google.com/)
 - **YouTube Channel ID** - Find at [YouTube Advanced Settings](https://www.youtube.com/account_advanced)
 
-### 🎛️ Grid Display Options
+### Grid Display Options
 - **Number of Columns** (1-10, default: 3)
 - **Gap Between Thumbnails** (pixels, default: 15)
 - **Number of Videos to Show** (1-50, default: 9)
 
-### 📝 Content Options
+### Content Options
 - **Show Grid Title** (checkbox, default: enabled)
 - **Show Grid Description** (checkbox, default: enabled)  
 - **Custom Grid Title** (optional override text)
 - **Custom Grid Description** (optional override text)
 
-### 🔗 Channel Link Options
+### Channel Link Options
 - **Show Channel Link** (checkbox, default: enabled)
 - **Channel Link Text** (default: "Visit Channel", supports `{channel}` placeholder)
 - **Button Background Color** (color picker, default: orange)
 - **Button Hover Color** (color picker, default: darker orange)
 - **Button Text Color** (color picker, default: white)
 
-### 🛠️ Admin Tools
+### Admin Tools
 - **Test API Key** - Verify your YouTube API connection
 - **Clear Cache** - Remove cached API responses
 - **Reset Plugin Settings** - Restore all settings to defaults
 
-## 🚀 Usage
+## Usage
 
 ### Video Grid Shortcode
 
@@ -138,7 +138,7 @@ Embed individual videos with inline playback:
 
 Supports both YouTube and Vimeo URLs. Automatically fetches title and description from the video API.
 
-## 🎨 Visual Behavior
+## Visual Behavior
 
 ### Grid Display
 - **Thumbnails only** in the grid layout (clean, minimal appearance)
@@ -152,12 +152,12 @@ Supports both YouTube and Vimeo URLs. Automatically fetches title and descriptio
 - **Channel link button** below the grid (customizable colors and text)
 
 ### Overlay Details
-- **Large thumbnail** (higher resolution than grid)
+- **High-resolution thumbnail** (1280x720 maxres quality)
 - **Full video title** (not truncated)
 - **Complete description** with proper text wrapping
 - **Smart positioning** - never gets clipped at screen edges
 
-## 🎨 Button Customization
+## Button Customization
 
 The easiest way to customize the "Visit Channel" button appearance is through the WordPress admin:
 
@@ -168,21 +168,22 @@ The easiest way to customize the "Visit Channel" button appearance is through th
 
 The plugin handles all styling automatically based on your color choices.
 
-## 🔧 Technical Requirements
+## Technical Requirements
 
 - **WordPress:** 5.0 or higher
 - **PHP:** 7.4 or higher  
 - **YouTube Data API v3 Key** (free from Google Cloud Console)
 
-## ⚡ Performance Features
+## Performance Features
 
 - **Smart caching** - API responses cached with WordPress transients
+- **Dual-resolution thumbnails** - Medium quality for grid (320x180), high quality for overlays (1280x720)
 - **Optimized images** - Proper thumbnail sizing and lazy loading ready
 - **Clean markup** - Semantic HTML with minimal inline styles
 - **Background processing** - Non-blocking API requests
 - **Efficient CSS** - External stylesheet with CSS custom properties
 
-## 🛠️ Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -215,34 +216,15 @@ define('WP_DEBUG', true);
 define('WP_DEBUG_LOG', true);
 ```
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please see our [Contributing Guidelines](CONTRIBUTING.md).
 
-### Development Setup
-
-```bash
-# Clone repository
-git clone https://github.com/planetoftheweb/flex-videos.git
-cd flex-videos
-
-# Install dependencies
-composer install
-npm install
-
-# Run code standards check
-composer run phpcs
-```
-
-## 📝 Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for version history and detailed changes.
-
-## 📄 License
+## License
 
 GPL-2.0-or-later - see [LICENSE](LICENSE) file for details.
 
-## 👨‍💻 Author & Support
+## Author & Support
 
 - **Author:** Ray Villalobos
 - **Website:** [Planet of the Web](https://planetoftheweb.com)
@@ -250,11 +232,8 @@ GPL-2.0-or-later - see [LICENSE](LICENSE) file for details.
 
 ### Get Help
 
-- 📖 **Documentation:** [GitHub Wiki](https://github.com/planetoftheweb/flex-videos/wiki)
-- 🐛 **Bug Reports:** [GitHub Issues](https://github.com/planetoftheweb/flex-videos/issues)  
-- 💬 **Discussions:** [GitHub Discussions](https://github.com/planetoftheweb/flex-videos/discussions)
-- 📧 **Email:** ray@planetoftheweb.com
+- **Bug Reports:** [GitHub Issues](https://github.com/planetoftheweb/flex-videos/issues)  
 
 ---
 
-⭐ **If this plugin helps you, please star the repository!**
+**If this plugin helps you, please star the repository!**
