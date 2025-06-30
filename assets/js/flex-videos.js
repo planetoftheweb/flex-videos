@@ -45,7 +45,7 @@
      * Make embedded videos responsive
      */
     function makeVideosResponsive() {
-        $('.flex-video-item iframe').each(function() {
+        $('.flex-video-single iframe').each(function() {
             var $iframe = $(this);
             var width = $iframe.attr('width');
             var height = $iframe.attr('height');
@@ -83,7 +83,7 @@
                 });
             });
 
-            $('.flex-video-item iframe[data-src]').each(function() {
+            $('.flex-video-single iframe[data-src]').each(function() {
                 lazyVideoObserver.observe(this);
             });
         }
@@ -93,7 +93,7 @@
      * Add click tracking for analytics
      */
     function addClickTracking() {
-        $('.flex-video-item').on('click', function() {
+        $('.flex-video-single').on('click', function() {
             var videoTitle = $(this).find('.flex-video-title').text() || 'Unknown Video';
             
             // Track with Google Analytics if available
