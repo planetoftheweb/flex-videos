@@ -257,9 +257,6 @@ msgstr ""
 msgid "Invalid YouTube URL."
 msgstr ""
 
-#: flex-videos.php:543
-msgid "Invalid Vimeo URL."
-msgstr ""
 
 #: flex-videos.php:546
 msgid "Unsupported video URL."
