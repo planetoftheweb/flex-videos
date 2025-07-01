@@ -3,7 +3,7 @@
     "description": "A professional WordPress plugin for displaying flexible, responsive video embeds with YouTube API integration",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "authors": [
         {
             "name": "Ray Villalobos",

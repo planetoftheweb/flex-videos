@@ -1,7 +1,7 @@
 {
   "name": "flex-videos",
   "description": "A WordPress plugin for displaying flexible, responsive video embeds with YouTube API integration",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "license": "GPL-2.0-or-later",
   "author": "Ray Villalobos",
   "repository": {

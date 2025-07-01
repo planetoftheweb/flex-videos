@@ -3,7 +3,7 @@
  * Plugin Name:       Flex Videos
  * Plugin URI:        https://github.com/planetoftheweb/flex-videos
  * Description:       A WordPress plugin for displaying flexible, responsive video embeds with YouTube API integration.
- * Version:           1.0.1
+ * Version:           1.0.2
  * Author:            Ray Villalobos
  * Author URI:        https://itsplaitime.com/
  * License:           GPL-2.0-or-later
@@ -635,8 +635,8 @@ add_action('admin_init', 'flex_videos_test_api_key');
 
 // Enqueue Flex Videos CSS and JS
 function flex_videos_enqueue_assets() {
-    wp_enqueue_style('flex-videos-css', plugins_url('assets/css/flex-videos.min.css', __FILE__), [], '1.0.1');
-    wp_enqueue_script('flex-videos-flyout', plugins_url('assets/js/flex-videos-flyout.min.js', __FILE__), [], '1.0.1', true);
+    wp_enqueue_style('flex-videos-css', plugins_url('assets/css/flex-videos.min.css', __FILE__), [], '1.0.2');
+    wp_enqueue_script('flex-videos-flyout', plugins_url('assets/js/flex-videos-flyout.min.js', __FILE__), [], '1.0.2', true);
     
     // Add custom button colors
     $button_color = get_option('flex_videos_button_color', '#ff8c00');

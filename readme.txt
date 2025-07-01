@@ -3,7 +3,7 @@ Contributors: rayvillalobos
 Tags: youtube, video, grid, responsive, embed
 Requires at least: 5.0
 Tested up to: 6.8
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 Requires PHP: 7.4
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -71,6 +71,12 @@ Yes, you can use the hashtag attribute in the shortcode to filter videos contain
 
 == Changelog ==
 
+= 1.0.2 =
+* Added Gutenberg block for inserting video grids
+* Introduced GitHub update checker for automatic updates
+* Added AJAX-powered cache reset button in settings
+* Refactored uninstall process for better cleanup
+
 = 1.0.1 =
 * Fixed WordPress plugin checker compliance issues
 * Added proper sanitization to all settings fields
@@ -89,6 +95,9 @@ Yes, you can use the hashtag attribute in the shortcode to filter videos contain
 * WordPress coding standards compliance
 
 == Upgrade Notice ==
+
+= 1.0.2 =
+Recommended update adding Gutenberg block, GitHub updater and improved cache management.
 
 = 1.0.1 =
 Important security and compliance update. Fixes WordPress plugin checker issues and improves overall plugin security.
