@@ -12,6 +12,8 @@ A WordPress plugin for displaying responsive YouTube video grids with modern fly
 - **Built-in Caching** - API responses are cached for optimal performance
 - **Optimized Thumbnails** - Medium resolution for grid performance, high-resolution for overlay quality
 - **WordPress Compatible** - Follows WordPress coding standards and best practices
+- **Gutenberg Block** - Insert video grids directly from the block editor
+- **Automatic Updates** - Built-in GitHub update checker for easy upgrades
 
 ## What Makes It Special
 
@@ -67,7 +69,7 @@ During development you can use `npm start` to watch for changes.
 
 When you are ready to publish a new version, create a Git tag matching the
 version number and push it to GitHub. WordPress sites running this plugin will
-detect the tagged release and offer the update automatically.
+detect the tagged release and offer the update automatically thanks to the built-in GitHub update checker.
 
 ## Configuration
 
@@ -98,6 +100,7 @@ Go to **Settings > Flex Videos** in WordPress admin:
 ### Admin Tools
 - **Test API Key** - Verify your YouTube API connection
 - **Clear Cache** - Remove cached API responses
+- **One-click Cache Reset** - Instant AJAX cache clearing from settings
 - **Reset Plugin Settings** - Restore all settings to defaults
 
 ## Usage

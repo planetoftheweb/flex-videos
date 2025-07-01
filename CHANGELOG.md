@@ -5,7 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.2] - 2025-07-01
+
+### Added
+- Gutenberg block for inserting video grids
+- GitHub update checker for automatic plugin updates
+- AJAX-powered cache reset button in plugin settings
+
+### Changed
+- Refactored uninstall process to better clean transients and options
+- Minified CSS/JS and optimized selectors
 
 ### Removed
 - Obsolete `includes/class-flex-videos.php` and Composer autoload configuration.

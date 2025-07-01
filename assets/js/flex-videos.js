@@ -2,7 +2,7 @@
  * Flex Videos Plugin JavaScript
  * 
  * @package FlexVideos
- * @version 1.0.1
+ * @version 1.0.2
  */
 
 (function($) {
