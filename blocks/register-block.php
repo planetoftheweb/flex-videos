@@ -20,7 +20,7 @@ function flex_videos_register_block() {
             'wp-block-editor',
             'wp-components'
         ),
-        '1.0.1',
+        '1.0.2',
         false // Load in header for admin/editor scripts
     );
 

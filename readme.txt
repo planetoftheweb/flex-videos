@@ -72,10 +72,12 @@ Yes, you can use the hashtag attribute in the shortcode to filter videos contain
 == Changelog ==
 
 = 1.0.2 =
+= 1.0.2 =
 * Added Gutenberg block for inserting video grids
-* Introduced GitHub update checker for automatic updates
-* Added AJAX-powered cache reset button in settings
+* Enhanced block editor integration with sidebar controls
 * Refactored uninstall process for better cleanup
+* Fixed WordPress plugin checker script loading warnings
+* Improved WordPress.org compliance
 
 = 1.0.1 =
 * Fixed WordPress plugin checker compliance issues
@@ -97,7 +99,7 @@ Yes, you can use the hashtag attribute in the shortcode to filter videos contain
 == Upgrade Notice ==
 
 = 1.0.2 =
-Recommended update adding Gutenberg block, GitHub updater and improved cache management.
+Major update adding Gutenberg block support and improved WordPress.org compliance.
 
 = 1.0.1 =
 Important security and compliance update. Fixes WordPress plugin checker issues and improves overall plugin security.

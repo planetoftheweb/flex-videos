@@ -8,16 +8,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.2] - 2025-07-01
 
 ### Added
-- Gutenberg block for inserting video grids
-- GitHub update checker for automatic plugin updates
-- AJAX-powered cache reset button in plugin settings
+- Gutenberg block for inserting video grids with customizable options
+- Enhanced block editor integration with sidebar controls
+- Proper WordPress script loading compliance
+
+### Fixed
+- WordPress Plugin Checker script registration warnings
+- Explicit `$in_footer` parameter for all script registrations
+- Enhanced block editor compatibility
 
 ### Changed
 - Refactored uninstall process to better clean transients and options
 - Minified CSS/JS and optimized selectors
 
 ### Removed
-- Obsolete `includes/class-flex-videos.php` and Composer autoload configuration.
+- GitHub update checker (for WordPress.org compliance)
+- Obsolete `includes/class-flex-videos.php` and Composer autoload configuration
 
 ## [1.0.1] - 2025-06-30
 
