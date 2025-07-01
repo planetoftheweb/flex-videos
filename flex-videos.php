@@ -567,13 +567,6 @@ function flex_video_single_shortcode($atts) {
         } else {
             return __('Invalid YouTube URL.', 'flex-videos');
         }
-    } elseif (strpos($url, 'vimeo.com') !== false) {
-        if (preg_match('/vimeo.com\/(\d+)/', $url, $matches)) {
-            $video_id = $matches[1];
-            $embed_url = 'https://player.vimeo.com/video/' . esc_attr($video_id);
-        } else {
-            return __('Invalid Vimeo URL.', 'flex-videos');
-        }
     } else {
         return __('Unsupported video URL.', 'flex-videos');
     }

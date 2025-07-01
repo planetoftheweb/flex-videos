@@ -159,7 +159,7 @@ Embed individual videos with inline playback:
 [flex_video url="https://www.youtube.com/watch?v=VIDEO_ID"]
 ```
 
-Supports both YouTube and Vimeo URLs. Automatically fetches title and description from the video API.
+Automatically fetches title and description for YouTube videos using the API.
 
 ## Visual Behavior
 
