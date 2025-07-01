@@ -1,9 +1,28 @@
 {
     "apiVersion": 2,
     "name": "flex-videos/grid",
-    "title": "Flex Videos Grid",
-    "category": "widgets",
+    "title": "Flex Videos",
+    "category": "media",
     "icon": "video-alt3",
-    "description": "Display a responsive YouTube grid using the Flex Videos shortcode.",
-    "editorScript": "file:./index.js"
+    "description": "Display a responsive YouTube video grid with customizable options.",
+    "keywords": ["video", "youtube", "grid", "flex", "responsive"],
+    "supports": {
+        "html": false,
+        "align": ["wide", "full"]
+    },
+    "attributes": {
+        "count": {
+            "type": "number",
+            "default": 9
+        },
+        "hashtag": {
+            "type": "string",
+            "default": ""
+        },
+        "columns": {
+            "type": "number",
+            "default": 3
+        }
+    },
+    "textdomain": "flex-videos"
 }
