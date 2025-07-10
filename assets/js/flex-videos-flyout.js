@@ -12,11 +12,13 @@ document.addEventListener('DOMContentLoaded', function() {
     var thumbUrl = item.getAttribute('data-thumb') || '';
     
     var html = '';
-    if (thumbUrl) html += '<img class="flex-videos-overlay-thumb" src="'+thumbUrl+'" alt="Large Thumbnail">';
-    if (title) html += '<h2 class="flex-videos-overlay-title">'+title+'</h2>';
-    if (desc) html += '<p class="flex-videos-overlay-desc">'+desc+'</p>';
+    if (thumbUrl) html += '<img class="flex-videos-overlay-thumb" src="'+thumbUrl+'" alt="Large video thumbnail for: '+title+'" role="img">';
+    if (title) html += '<h2 class="flex-videos-overlay-title" role="heading" aria-level="2">'+title+'</h2>';
+    if (desc) html += '<p class="flex-videos-overlay-desc" role="text">'+desc+'</p>';
     
     overlay.innerHTML = html;
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-label', 'Video details: ' + title);
     overlay.style.display = 'flex';
     // Remove animation class if present, then force reflow, then add
     overlay.classList.remove('flex-videos-animate');
@@ -69,12 +71,36 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   items.forEach(function(item) {
+    // Add tabindex for keyboard navigation
+    item.setAttribute('tabindex', '0');
+    item.setAttribute('role', 'button');
+    item.setAttribute('aria-label', 'View details for video: ' + (item.getAttribute('data-title') || 'video'));
+    
     item.addEventListener('mouseenter', function() { 
       clearTimeout(window.flexVideosHideTimer);
       showOverlay(item); 
     });
     item.addEventListener('mouseleave', function() {
       window.flexVideosHideTimer = setTimeout(hideOverlay, 100);
+    });
+    
+    // Keyboard support
+    item.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        showOverlay(item);
+      } else if (e.key === 'Escape') {
+        hideOverlay();
+      }
+    });
+    
+    item.addEventListener('focus', function() {
+      clearTimeout(window.flexVideosHideTimer);
+      showOverlay(item);
+    });
+    
+    item.addEventListener('blur', function() {
+      window.flexVideosHideTimer = setTimeout(hideOverlay, 300);
     });
   });
   
@@ -87,6 +113,13 @@ document.addEventListener('DOMContentLoaded', function() {
     window.flexVideosHideTimer = setTimeout(hideOverlay, 100);
   });
   
-  // Hide on scroll
+  // Hide on scroll and global escape key
   window.addEventListener('scroll', hideOverlay);
+  
+  // Global escape key support
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && overlay.style.display !== 'none') {
+      hideOverlay();
+    }
+  });
 });

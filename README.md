@@ -225,6 +225,10 @@ define('WP_DEBUG_LOG', true);
 
 Contributions are welcome! Please see our [Contributing Guidelines](CONTRIBUTING.md).
 
+For developers, see the [Developer Documentation](DEVELOPER.md) for technical details, testing setup, and security guidelines.
+
+For accessibility information, see the [Accessibility Documentation](ACCESSIBILITY.md) for details on keyboard navigation, screen reader support, and WCAG compliance.
+
 ## License
 
 GPL-2.0-or-later - see [LICENSE](LICENSE) file for details.

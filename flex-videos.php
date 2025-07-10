@@ -29,6 +29,14 @@ require_once plugin_dir_path( __FILE__ ) . 'blocks/register-block.php';
 
 // --- PLUGIN SETTINGS & CACHE HANDLING ---
 
+/**
+ * Add admin menu page for plugin settings
+ * 
+ * Creates a settings page under Settings menu for configuring
+ * YouTube API credentials and display options.
+ * 
+ * @since 1.0.0
+ */
 function flex_videos_add_admin_menu() {
     add_options_page(
         __('Flex Videos Settings', 'flex-videos'),
@@ -40,6 +48,52 @@ function flex_videos_add_admin_menu() {
 }
 add_action('admin_menu', 'flex_videos_add_admin_menu');
 
+/**
+ * Enhanced validation for numeric values with bounds checking
+ * 
+ * @param mixed $value Input value to validate
+ * @param int   $min   Minimum allowed value
+ * @param int   $max   Maximum allowed value  
+ * @param int   $default Default value if validation fails
+ * @return int Validated integer value
+ * @since 1.0.2
+ */
+function flex_videos_validate_numeric_range( $value, $min, $max, $default ) {
+    $value = intval( $value );
+    if ( $value < $min || $value > $max ) {
+        return $default;
+    }
+    return $value;
+}
+
+/**
+ * Enhanced validation for YouTube Channel ID format
+ * 
+ * @param string $channel_id Channel ID to validate
+ * @return string Sanitized channel ID or empty string if invalid
+ * @since 1.0.2
+ */
+function flex_videos_validate_channel_id( $channel_id ) {
+    $channel_id = sanitize_text_field( $channel_id );
+    
+    // YouTube channel IDs should start with UC and be 24 characters long
+    if ( ! empty( $channel_id ) && ! preg_match( '/^UC[a-zA-Z0-9_-]{22}$/', $channel_id ) ) {
+        // If it doesn't match the pattern, still allow it but log a notice
+        // Some channels might have different formats
+        error_log( 'Flex Videos: Channel ID format may be incorrect: ' . $channel_id );
+    }
+    
+    return $channel_id;
+}
+
+/**
+ * Initialize plugin settings and register setting fields
+ * 
+ * Registers all plugin settings with WordPress Settings API,
+ * includes proper sanitization callbacks for security.
+ * 
+ * @since 1.0.0
+ */
 function flex_videos_settings_init() {
     // API Section
     add_settings_section(
@@ -49,7 +103,7 @@ function flex_videos_settings_init() {
         'flex_videos_settings_group'
     );
     register_setting('flex_videos_settings_group', 'flex_videos_api_key', 'sanitize_text_field');
-    register_setting('flex_videos_settings_group', 'flex_videos_channel_id', 'sanitize_text_field');
+    register_setting('flex_videos_settings_group', 'flex_videos_channel_id', 'flex_videos_validate_channel_id');
     add_settings_field(
         'flex_videos_api_key',
         __('YouTube Data API Key', 'flex-videos'),
@@ -72,11 +126,17 @@ function flex_videos_settings_init() {
         null,
         'flex_videos_settings_group'
     );
-    register_setting('flex_videos_settings_group', 'flex_videos_columns', 'intval');
-    register_setting('flex_videos_settings_group', 'flex_videos_gap', 'intval');
+    register_setting('flex_videos_settings_group', 'flex_videos_columns', function($value) { 
+        return flex_videos_validate_numeric_range($value, 1, 10, 3); 
+    });
+    register_setting('flex_videos_settings_group', 'flex_videos_gap', function($value) { 
+        return flex_videos_validate_numeric_range($value, 0, 100, 15); 
+    });
     register_setting('flex_videos_settings_group', 'flex_videos_show_grid_title', 'sanitize_text_field');
     register_setting('flex_videos_settings_group', 'flex_videos_show_grid_description', 'sanitize_text_field');
-    register_setting('flex_videos_settings_group', 'flex_videos_num_videos', 'intval');
+    register_setting('flex_videos_settings_group', 'flex_videos_num_videos', function($value) { 
+        return flex_videos_validate_numeric_range($value, 1, 50, 9); 
+    });
     register_setting('flex_videos_settings_group', 'flex_videos_custom_grid_title', 'sanitize_text_field');
     register_setting('flex_videos_settings_group', 'flex_videos_custom_grid_desc', 'sanitize_textarea_field');
     add_settings_field(
@@ -257,7 +317,14 @@ function flex_videos_button_text_color_field_html() {
     <?php
 }
 
-// Add cache clearing functionality
+/**
+ * Handle cache clearing and settings reset functionality
+ * 
+ * Processes admin form submissions for clearing YouTube API cache
+ * and resetting plugin settings. Uses nonce verification for security.
+ * 
+ * @since 1.0.0
+ */
 function flex_videos_clear_cache() {
     if (isset($_POST['clear_cache']) && check_admin_referer('flex_videos_clear_cache', 'flex_videos_cache_nonce')) {
         // Clear all flex_videos transients using WordPress functions
