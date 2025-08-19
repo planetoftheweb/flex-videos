@@ -156,10 +156,13 @@ function flex_videos_get_with_fallback($cache_key, $api_callback, $cache_duratio
     // Try to get fresh cached data first
     $cached_data = get_transient($cache_key);
     if ($cached_data !== false) {
+        // Cache hit - log it
+        flex_videos_log_cache_hit($cache_key, true);
         return $cached_data;
     }
     
-    // Cache miss - try API call
+    // Cache miss - log it and try API call
+    flex_videos_log_cache_hit($cache_key, false);
     $api_result = $api_callback();
     
     if (is_wp_error($api_result)) {
@@ -316,6 +319,106 @@ function flex_videos_clear_scheduled_events() {
     wp_clear_scheduled_hook('flex_videos_warm_cache');
 }
 register_deactivation_hook(__FILE__, 'flex_videos_clear_scheduled_events');
+
+/**
+ * Cache health monitoring and metrics
+ */
+function flex_videos_get_cache_metrics() {
+    $channel_id = get_option('flex_videos_channel_id');
+    $cache_version = get_option('flex_videos_cache_version', 1);
+    
+    $metrics = [
+        'channel_cache' => [],
+        'video_cache' => [],
+        'stale_caches' => [],
+        'api_usage' => flex_videos_get_api_usage(),
+        'cache_health' => 'healthy'
+    ];
+    
+    // Check channel cache
+    $channel_key = 'flex_videos_channel_info_' . $channel_id;
+    $channel_data = get_transient($channel_key);
+    $channel_ttl = flex_videos_get_cache_ttl($channel_key);
+    
+    $metrics['channel_cache'] = [
+        'status' => $channel_data !== false ? 'cached' : 'empty',
+        'ttl' => $channel_ttl,
+        'ttl_hours' => $channel_ttl ? round($channel_ttl / HOUR_IN_SECONDS, 1) : 0,
+        'has_stale' => get_transient($channel_key . '_stale') !== false
+    ];
+    
+    // Check video cache
+    $video_key = 'flex_videos_search_cache_' . md5('_v' . $cache_version);
+    $video_data = get_transient($video_key);
+    $video_ttl = flex_videos_get_cache_ttl($video_key);
+    
+    $metrics['video_cache'] = [
+        'status' => $video_data !== false ? 'cached' : 'empty',
+        'ttl' => $video_ttl,
+        'ttl_hours' => $video_ttl ? round($video_ttl / HOUR_IN_SECONDS, 1) : 0,
+        'has_stale' => get_transient($video_key . '_stale') !== false,
+        'video_count' => is_array($video_data) ? count($video_data['items'] ?? []) : 0
+    ];
+    
+    // Overall health assessment
+    $health_issues = [];
+    
+    if ($metrics['api_usage']['quota_percentage'] > 90) {
+        $health_issues[] = 'high_api_usage';
+    }
+    
+    if ($metrics['channel_cache']['status'] === 'empty' && !$metrics['channel_cache']['has_stale']) {
+        $health_issues[] = 'missing_channel_cache';
+    }
+    
+    if ($metrics['video_cache']['status'] === 'empty' && !$metrics['video_cache']['has_stale']) {
+        $health_issues[] = 'missing_video_cache';
+    }
+    
+    if (!empty($health_issues)) {
+        $metrics['cache_health'] = 'warning';
+        $metrics['health_issues'] = $health_issues;
+    }
+    
+    return $metrics;
+}
+
+/**
+ * Log cache performance metrics
+ */
+function flex_videos_log_cache_hit($cache_key, $hit = true) {
+    $stats_key = 'flex_videos_cache_stats_' . date('Ymd');
+    $stats = get_transient($stats_key) ?: ['hits' => 0, 'misses' => 0, 'total' => 0];
+    
+    if ($hit) {
+        $stats['hits']++;
+    } else {
+        $stats['misses']++;
+    }
+    $stats['total']++;
+    
+    set_transient($stats_key, $stats, DAY_IN_SECONDS);
+}
+
+/**
+ * Get cache performance statistics
+ */
+function flex_videos_get_cache_stats() {
+    $today_key = 'flex_videos_cache_stats_' . date('Ymd');
+    $yesterday_key = 'flex_videos_cache_stats_' . date('Ymd', strtotime('-1 day'));
+    
+    $today_stats = get_transient($today_key) ?: ['hits' => 0, 'misses' => 0, 'total' => 0];
+    $yesterday_stats = get_transient($yesterday_key) ?: ['hits' => 0, 'misses' => 0, 'total' => 0];
+    
+    return [
+        'today' => array_merge($today_stats, [
+            'hit_rate' => $today_stats['total'] > 0 ? round(($today_stats['hits'] / $today_stats['total']) * 100, 1) : 0
+        ]),
+        'yesterday' => array_merge($yesterday_stats, [
+            'hit_rate' => $yesterday_stats['total'] > 0 ? round(($yesterday_stats['hits'] / $yesterday_stats['total']) * 100, 1) : 0
+        ])
+    ];
+}
 
 function flex_videos_add_admin_menu() {
     add_options_page(
@@ -635,26 +738,115 @@ function flex_videos_settings_page_html() {
         <p><?php esc_html_e('The plugin uses optimized caching with different durations: Channel info (12 hours), Videos (2 hours), Search results (30 minutes).', 'flex-videos'); ?></p>
         
         <?php 
-        // Display API usage statistics
-        $api_usage = flex_videos_get_api_usage();
+        // Display comprehensive cache health and metrics
+        $cache_metrics = flex_videos_get_cache_metrics();
+        $cache_stats = flex_videos_get_cache_stats();
         ?>
+        
+        <!-- Cache Health Overview -->
+        <div style="background: <?php echo $cache_metrics['cache_health'] === 'healthy' ? '#d1e7dd' : '#fff3cd'; ?>; padding: 15px; border-left: 4px solid <?php echo $cache_metrics['cache_health'] === 'healthy' ? '#0f5132' : '#664d03'; ?>; margin: 15px 0;">
+            <h4 style="margin-top: 0;">
+                <?php esc_html_e('Cache Health Status:', 'flex-videos'); ?> 
+                <span style="color: <?php echo $cache_metrics['cache_health'] === 'healthy' ? '#0f5132' : '#664d03'; ?>;">
+                    <?php echo $cache_metrics['cache_health'] === 'healthy' ? '✅ ' . __('Healthy', 'flex-videos') : '⚠️ ' . __('Needs Attention', 'flex-videos'); ?>
+                </span>
+            </h4>
+            
+            <?php if (!empty($cache_metrics['health_issues'])): ?>
+                <p><strong><?php esc_html_e('Issues Detected:', 'flex-videos'); ?></strong></p>
+                <ul style="margin-left: 20px;">
+                    <?php foreach ($cache_metrics['health_issues'] as $issue): ?>
+                        <li>
+                            <?php
+                            switch ($issue) {
+                                case 'high_api_usage':
+                                    esc_html_e('High API usage - consider clearing cache', 'flex-videos');
+                                    break;
+                                case 'missing_channel_cache':
+                                    esc_html_e('Channel cache missing - will refresh on next request', 'flex-videos');
+                                    break;
+                                case 'missing_video_cache':
+                                    esc_html_e('Video cache missing - will refresh on next request', 'flex-videos');
+                                    break;
+                            }
+                            ?>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+        </div>
+        
+        <!-- API Usage Statistics -->
         <div style="background: #f9f9f9; padding: 15px; border-left: 4px solid #0073aa; margin: 15px 0;">
-            <h4 style="margin-top: 0;"><?php esc_html_e('Current Hour API Usage', 'flex-videos'); ?></h4>
-            <p>
-                <strong><?php esc_html_e('API Calls:', 'flex-videos'); ?></strong> 
-                <?php echo esc_html($api_usage['current_hour_calls']); ?> / <?php echo esc_html($api_usage['max_calls_per_hour']); ?> 
-                (<?php echo esc_html($api_usage['quota_percentage']); ?>%)
-            </p>
-            <p>
-                <strong><?php esc_html_e('Remaining:', 'flex-videos'); ?></strong> 
-                <?php echo esc_html($api_usage['remaining_calls']); ?> calls
-            </p>
-            <?php if ($api_usage['quota_percentage'] > 80): ?>
-                <p style="color: #d63384;">
+            <h4 style="margin-top: 0;"><?php esc_html_e('API Usage & Performance', 'flex-videos'); ?></h4>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px;">
+                <div>
+                    <strong><?php esc_html_e('Current Hour API Usage:', 'flex-videos'); ?></strong><br>
+                    <?php echo esc_html($cache_metrics['api_usage']['current_hour_calls']); ?> / <?php echo esc_html($cache_metrics['api_usage']['max_calls_per_hour']); ?> 
+                    (<?php echo esc_html($cache_metrics['api_usage']['quota_percentage']); ?>%)<br>
+                    <small><?php echo esc_html($cache_metrics['api_usage']['remaining_calls']); ?> <?php esc_html_e('calls remaining', 'flex-videos'); ?></small>
+                </div>
+                
+                <div>
+                    <strong><?php esc_html_e('Cache Performance:', 'flex-videos'); ?></strong><br>
+                    <?php esc_html_e('Today:', 'flex-videos'); ?> <?php echo esc_html($cache_stats['today']['hit_rate']); ?>% <?php esc_html_e('hit rate', 'flex-videos'); ?> 
+                    (<?php echo esc_html($cache_stats['today']['hits']); ?> hits / <?php echo esc_html($cache_stats['today']['total']); ?> total)<br>
+                    <small><?php esc_html_e('Yesterday:', 'flex-videos'); ?> <?php echo esc_html($cache_stats['yesterday']['hit_rate']); ?>% <?php esc_html_e('hit rate', 'flex-videos'); ?></small>
+                </div>
+            </div>
+            
+            <?php if ($cache_metrics['api_usage']['quota_percentage'] > 80): ?>
+                <p style="color: #d63384; margin-top: 15px;">
                     <strong><?php esc_html_e('Warning:', 'flex-videos'); ?></strong>
                     <?php esc_html_e('High API usage detected. Consider clearing cache or reducing requests.', 'flex-videos'); ?>
                 </p>
             <?php endif; ?>
+        </div>
+        
+        <!-- Cache Status Details -->
+        <div style="background: #f9f9f9; padding: 15px; border-left: 4px solid #6c757d; margin: 15px 0;">
+            <h4 style="margin-top: 0;"><?php esc_html_e('Cache Status Details', 'flex-videos'); ?></h4>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <strong><?php esc_html_e('Channel Cache:', 'flex-videos'); ?></strong><br>
+                    <?php 
+                    $status_color = $cache_metrics['channel_cache']['status'] === 'cached' ? '#0f5132' : '#d63384';
+                    $status_text = $cache_metrics['channel_cache']['status'] === 'cached' ? __('Cached', 'flex-videos') : __('Empty', 'flex-videos');
+                    ?>
+                    <span style="color: <?php echo $status_color; ?>;">●</span> <?php echo esc_html($status_text); ?><br>
+                    
+                    <?php if ($cache_metrics['channel_cache']['ttl_hours'] > 0): ?>
+                        <small><?php esc_html_e('Expires in:', 'flex-videos'); ?> <?php echo esc_html($cache_metrics['channel_cache']['ttl_hours']); ?> <?php esc_html_e('hours', 'flex-videos'); ?></small><br>
+                    <?php endif; ?>
+                    
+                    <?php if ($cache_metrics['channel_cache']['has_stale']): ?>
+                        <small style="color: #6c757d;">✓ <?php esc_html_e('Stale backup available', 'flex-videos'); ?></small>
+                    <?php endif; ?>
+                </div>
+                
+                <div>
+                    <strong><?php esc_html_e('Video Cache:', 'flex-videos'); ?></strong><br>
+                    <?php 
+                    $status_color = $cache_metrics['video_cache']['status'] === 'cached' ? '#0f5132' : '#d63384';
+                    $status_text = $cache_metrics['video_cache']['status'] === 'cached' ? __('Cached', 'flex-videos') : __('Empty', 'flex-videos');
+                    ?>
+                    <span style="color: <?php echo $status_color; ?>;">●</span> <?php echo esc_html($status_text); ?>
+                    
+                    <?php if ($cache_metrics['video_cache']['video_count'] > 0): ?>
+                        (<?php echo esc_html($cache_metrics['video_cache']['video_count']); ?> <?php esc_html_e('videos', 'flex-videos'); ?>)
+                    <?php endif; ?><br>
+                    
+                    <?php if ($cache_metrics['video_cache']['ttl_hours'] > 0): ?>
+                        <small><?php esc_html_e('Expires in:', 'flex-videos'); ?> <?php echo esc_html($cache_metrics['video_cache']['ttl_hours']); ?> <?php esc_html_e('hours', 'flex-videos'); ?></small><br>
+                    <?php endif; ?>
+                    
+                    <?php if ($cache_metrics['video_cache']['has_stale']): ?>
+                        <small style="color: #6c757d;">✓ <?php esc_html_e('Stale backup available', 'flex-videos'); ?></small>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
         
         <form method="post" action="">
