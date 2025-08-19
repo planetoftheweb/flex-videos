@@ -27,7 +27,93 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 // Register Gutenberg block.
 require_once plugin_dir_path( __FILE__ ) . 'blocks/register-block.php';
 
+// --- CACHE CONFIGURATION CONSTANTS ---
+
+// Different cache durations based on data volatility
+if (!defined('FLEX_VIDEOS_CHANNEL_CACHE_DURATION')) {
+    define('FLEX_VIDEOS_CHANNEL_CACHE_DURATION', 12 * HOUR_IN_SECONDS); // 12 hours - channels rarely change
+}
+if (!defined('FLEX_VIDEOS_VIDEO_CACHE_DURATION')) {
+    define('FLEX_VIDEOS_VIDEO_CACHE_DURATION', 2 * HOUR_IN_SECONDS); // 2 hours - videos change more frequently
+}
+if (!defined('FLEX_VIDEOS_SEARCH_CACHE_DURATION')) {
+    define('FLEX_VIDEOS_SEARCH_CACHE_DURATION', 30 * MINUTE_IN_SECONDS); // 30 minutes - hashtag searches change frequently
+}
+if (!defined('FLEX_VIDEOS_MAX_API_CALLS_PER_HOUR')) {
+    define('FLEX_VIDEOS_MAX_API_CALLS_PER_HOUR', 1000); // Conservative limit to prevent quota exhaustion
+}
+
 // --- PLUGIN SETTINGS & CACHE HANDLING ---
+
+/**
+ * Check if API quota allows for another request
+ * 
+ * @return bool True if quota allows request, false otherwise
+ */
+function flex_videos_check_api_quota() {
+    $quota_key = 'flex_videos_api_calls_' . date('YmdH');
+    $current_calls = get_transient($quota_key) ?: 0;
+    
+    if ($current_calls >= FLEX_VIDEOS_MAX_API_CALLS_PER_HOUR) {
+        error_log('Flex Videos: API quota limit reached for hour ' . date('YmdH'));
+        return false;
+    }
+    
+    return true;
+}
+
+/**
+ * Increment API call counter
+ */
+function flex_videos_increment_api_calls() {
+    $quota_key = 'flex_videos_api_calls_' . date('YmdH');
+    $current_calls = get_transient($quota_key) ?: 0;
+    set_transient($quota_key, $current_calls + 1, HOUR_IN_SECONDS);
+}
+
+/**
+ * Get current API usage statistics
+ * 
+ * @return array API usage data
+ */
+function flex_videos_get_api_usage() {
+    $quota_key = 'flex_videos_api_calls_' . date('YmdH');
+    $current_calls = get_transient($quota_key) ?: 0;
+    
+    return [
+        'current_hour_calls' => $current_calls,
+        'max_calls_per_hour' => FLEX_VIDEOS_MAX_API_CALLS_PER_HOUR,
+        'remaining_calls' => FLEX_VIDEOS_MAX_API_CALLS_PER_HOUR - $current_calls,
+        'quota_percentage' => round(($current_calls / FLEX_VIDEOS_MAX_API_CALLS_PER_HOUR) * 100, 1)
+    ];
+}
+
+/**
+ * Enhanced API request with quota tracking and error handling
+ * 
+ * @param string $url API endpoint URL
+ * @param array $args Additional request arguments
+ * @return array|WP_Error Response data or error
+ */
+function flex_videos_api_request($url, $args = []) {
+    // Check quota before making request
+    if (!flex_videos_check_api_quota()) {
+        return new WP_Error(
+            'quota_exceeded', 
+            __('API quota limit reached. Please try again later.', 'flex-videos')
+        );
+    }
+    
+    // Make the API request
+    $response = wp_remote_get($url, $args);
+    
+    // Increment counter for successful requests only
+    if (!is_wp_error($response)) {
+        flex_videos_increment_api_calls();
+    }
+    
+    return $response;
+}
 
 function flex_videos_add_admin_menu() {
     add_options_page(
@@ -343,8 +429,32 @@ function flex_videos_settings_page_html() {
             </p>
         </form>
         <hr>
-        <h2><?php esc_html_e('Cache Management', 'flex-videos'); ?></h2>
-        <p><?php esc_html_e('The plugin caches YouTube results for 1 hour to improve performance. You can manually clear this cache using the button below.', 'flex-videos'); ?></p>
+        <h2><?php esc_html_e('Cache Management & API Usage', 'flex-videos'); ?></h2>
+        <p><?php esc_html_e('The plugin uses optimized caching with different durations: Channel info (12 hours), Videos (2 hours), Search results (30 minutes).', 'flex-videos'); ?></p>
+        
+        <?php 
+        // Display API usage statistics
+        $api_usage = flex_videos_get_api_usage();
+        ?>
+        <div style="background: #f9f9f9; padding: 15px; border-left: 4px solid #0073aa; margin: 15px 0;">
+            <h4 style="margin-top: 0;"><?php esc_html_e('Current Hour API Usage', 'flex-videos'); ?></h4>
+            <p>
+                <strong><?php esc_html_e('API Calls:', 'flex-videos'); ?></strong> 
+                <?php echo esc_html($api_usage['current_hour_calls']); ?> / <?php echo esc_html($api_usage['max_calls_per_hour']); ?> 
+                (<?php echo esc_html($api_usage['quota_percentage']); ?>%)
+            </p>
+            <p>
+                <strong><?php esc_html_e('Remaining:', 'flex-videos'); ?></strong> 
+                <?php echo esc_html($api_usage['remaining_calls']); ?> calls
+            </p>
+            <?php if ($api_usage['quota_percentage'] > 80): ?>
+                <p style="color: #d63384;">
+                    <strong><?php esc_html_e('Warning:', 'flex-videos'); ?></strong>
+                    <?php esc_html_e('High API usage detected. Consider clearing cache or reducing requests.', 'flex-videos'); ?>
+                </p>
+            <?php endif; ?>
+        </div>
+        
         <form method="post" action="">
             <?php wp_nonce_field('flex_videos_clear_cache', 'flex_videos_cache_nonce'); ?>
             <p>
@@ -398,12 +508,13 @@ function flex_videos_grid_shortcode($atts) {
     // Fetch channel info (name and description)
     $channel_info = get_transient('flex_videos_channel_info_' . $channel_id);
     if ($channel_info === false && $api_key && $channel_id) {
+        // Optimized API URL with only needed fields to reduce response size
         $channel_api_url = sprintf(
-            'https://www.googleapis.com/youtube/v3/channels?part=snippet&id=%s&key=%s',
+            'https://www.googleapis.com/youtube/v3/channels?part=snippet&fields=items(snippet(title,description,customUrl))&id=%s&key=%s',
             $channel_id,
             $api_key
         );
-        $channel_response = wp_remote_get($channel_api_url);
+        $channel_response = flex_videos_api_request($channel_api_url);
         if (!is_wp_error($channel_response) && wp_remote_retrieve_response_code($channel_response) === 200) {
             $channel_data = json_decode(wp_remote_retrieve_body($channel_response), true);
             if (!empty($channel_data['items'][0]['snippet'])) {
@@ -412,7 +523,8 @@ function flex_videos_grid_shortcode($atts) {
                     'description' => $channel_data['items'][0]['snippet']['description'],
                     'customUrl' => $channel_data['items'][0]['snippet']['customUrl'] ?? '',
                 ];
-                set_transient('flex_videos_channel_info_' . $channel_id, $channel_info, HOUR_IN_SECONDS);
+                // Use longer cache duration for channel info since it rarely changes
+                set_transient('flex_videos_channel_info_' . $channel_id, $channel_info, FLEX_VIDEOS_CHANNEL_CACHE_DURATION);
             }
         }
     }
@@ -420,22 +532,28 @@ function flex_videos_grid_shortcode($atts) {
     $channel_description = $channel_info['description'] ?? '';
     $channel_custom_url = $channel_info['customUrl'] ?? '';
     if (false === $cached_data) {
+        // Calculate optimal maxResults based on actual needs plus small buffer
+        $optimal_max_results = min($max_to_display + 5, 50);
+        
         if (empty($hashtag)) {
+            // Optimized API URL with selective fields and dynamic maxResults
             $api_url = sprintf(
-                'https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=%s&order=date&type=video&maxResults=50&key=%s',
+                'https://www.googleapis.com/youtube/v3/search?part=snippet&fields=items(id/videoId,snippet(title,description,thumbnails))&channelId=%s&order=date&type=video&maxResults=%d&key=%s',
                 $channel_id,
+                $optimal_max_results,
                 $api_key
             );
         } else {
             $search_query = urlencode($hashtag);
             $api_url = sprintf(
-                'https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=%s&q=%s&order=date&type=video&maxResults=50&key=%s',
+                'https://www.googleapis.com/youtube/v3/search?part=snippet&fields=items(id/videoId,snippet(title,description,thumbnails))&channelId=%s&q=%s&order=date&type=video&maxResults=%d&key=%s',
                 $channel_id,
                 $search_query,
+                $optimal_max_results,
                 $api_key
             );
         }
-        $response = wp_remote_get($api_url);
+        $response = flex_videos_api_request($api_url);
         if (is_wp_error($response)) {
             if (current_user_can('manage_options')) {
                 // translators: %s is the error message from the API request
@@ -455,7 +573,10 @@ function flex_videos_grid_shortcode($atts) {
             return '';
         }
         $api_data = json_decode(wp_remote_retrieve_body($response), true);
-        set_transient($transient_key, $api_data, HOUR_IN_SECONDS);
+        
+        // Use appropriate cache duration based on search type
+        $cache_duration = empty($hashtag) ? FLEX_VIDEOS_VIDEO_CACHE_DURATION : FLEX_VIDEOS_SEARCH_CACHE_DURATION;
+        set_transient($transient_key, $api_data, $cache_duration);
         $videos = $api_data['items'] ?? [];
     } else {
         $videos = $cached_data['items'] ?? [];
@@ -597,11 +718,17 @@ function flex_videos_test_api_key() {
             return;
         }
         $test_url = sprintf(
-            'https://www.googleapis.com/youtube/v3/channels?part=snippet&id=%s&key=%s',
+            'https://www.googleapis.com/youtube/v3/channels?part=snippet&fields=items(snippet(title))&id=%s&key=%s',
             $channel_id,
             $api_key
         );
-        $response = wp_remote_get($test_url);
+        $response = flex_videos_api_request($test_url);
+        if (is_wp_error($response)) {
+            add_action('admin_notices', function() use ($response) {
+                echo '<div class="notice notice-error is-dismissible"><p>' . sprintf(esc_html__('API Error: %s', 'flex-videos'), esc_html($response->get_error_message())) . '</p></div>';
+            });
+            return;
+        }
         $response_code = wp_remote_retrieve_response_code($response);
         if ($response_code === 200) {
             $data = json_decode(wp_remote_retrieve_body($response), true);
