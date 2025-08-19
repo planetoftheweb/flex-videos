@@ -27,7 +27,398 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 // Register Gutenberg block.
 require_once plugin_dir_path( __FILE__ ) . 'blocks/register-block.php';
 
+// --- CACHE CONFIGURATION CONSTANTS ---
+
+// Different cache durations based on data volatility
+if (!defined('FLEX_VIDEOS_CHANNEL_CACHE_DURATION')) {
+    define('FLEX_VIDEOS_CHANNEL_CACHE_DURATION', 12 * HOUR_IN_SECONDS); // 12 hours - channels rarely change
+}
+if (!defined('FLEX_VIDEOS_VIDEO_CACHE_DURATION')) {
+    define('FLEX_VIDEOS_VIDEO_CACHE_DURATION', 2 * HOUR_IN_SECONDS); // 2 hours - videos change more frequently
+}
+if (!defined('FLEX_VIDEOS_SEARCH_CACHE_DURATION')) {
+    define('FLEX_VIDEOS_SEARCH_CACHE_DURATION', 30 * MINUTE_IN_SECONDS); // 30 minutes - hashtag searches change frequently
+}
+if (!defined('FLEX_VIDEOS_MAX_API_CALLS_PER_HOUR')) {
+    define('FLEX_VIDEOS_MAX_API_CALLS_PER_HOUR', 1000); // Conservative limit to prevent quota exhaustion
+}
+
 // --- PLUGIN SETTINGS & CACHE HANDLING ---
+
+/**
+ * Check if API quota allows for another request
+ * 
+ * @return bool True if quota allows request, false otherwise
+ */
+function flex_videos_check_api_quota() {
+    $quota_key = 'flex_videos_api_calls_' . date('YmdH');
+    $current_calls = get_transient($quota_key) ?: 0;
+    
+    if ($current_calls >= FLEX_VIDEOS_MAX_API_CALLS_PER_HOUR) {
+        error_log('Flex Videos: API quota limit reached for hour ' . date('YmdH'));
+        return false;
+    }
+    
+    return true;
+}
+
+/**
+ * Increment API call counter
+ */
+function flex_videos_increment_api_calls() {
+    $quota_key = 'flex_videos_api_calls_' . date('YmdH');
+    $current_calls = get_transient($quota_key) ?: 0;
+    set_transient($quota_key, $current_calls + 1, HOUR_IN_SECONDS);
+}
+
+/**
+ * Get current API usage statistics
+ * 
+ * @return array API usage data
+ */
+function flex_videos_get_api_usage() {
+    $quota_key = 'flex_videos_api_calls_' . date('YmdH');
+    $current_calls = get_transient($quota_key) ?: 0;
+    
+    return [
+        'current_hour_calls' => $current_calls,
+        'max_calls_per_hour' => FLEX_VIDEOS_MAX_API_CALLS_PER_HOUR,
+        'remaining_calls' => FLEX_VIDEOS_MAX_API_CALLS_PER_HOUR - $current_calls,
+        'quota_percentage' => round(($current_calls / FLEX_VIDEOS_MAX_API_CALLS_PER_HOUR) * 100, 1)
+    ];
+}
+
+/**
+ * Enhanced API request with quota tracking and error handling
+ * 
+ * @param string $url API endpoint URL
+ * @param array $args Additional request arguments
+ * @return array|WP_Error Response data or error
+ */
+function flex_videos_api_request($url, $args = []) {
+    // Check quota before making request
+    if (!flex_videos_check_api_quota()) {
+        return new WP_Error(
+            'quota_exceeded', 
+            __('API quota limit reached. Please try again later.', 'flex-videos')
+        );
+    }
+    
+    // Check for stored ETag to make conditional request
+    $etag_key = 'flex_videos_etag_' . md5($url);
+    $stored_etag = get_transient($etag_key);
+    
+    if ($stored_etag) {
+        $args['headers'] = array_merge(
+            $args['headers'] ?? [],
+            ['If-None-Match' => $stored_etag]
+        );
+    }
+    
+    // Make the API request
+    $response = wp_remote_get($url, $args);
+    
+    if (is_wp_error($response)) {
+        return $response;
+    }
+    
+    $response_code = wp_remote_retrieve_response_code($response);
+    
+    // Handle 304 Not Modified response
+    if ($response_code === 304) {
+        // Data unchanged, return special indicator to use cached data
+        return new WP_Error('not_modified', __('Data not modified, use cached version.', 'flex-videos'));
+    }
+    
+    // Store new ETag for future requests
+    $new_etag = wp_remote_retrieve_header($response, 'etag');
+    if ($new_etag) {
+        set_transient($etag_key, $new_etag, DAY_IN_SECONDS);
+    }
+    
+    // Increment counter for successful requests only
+    if ($response_code === 200) {
+        flex_videos_increment_api_calls();
+    }
+    
+    return $response;
+}
+
+/**
+ * Get data with fallback to stale cache on API failure
+ * 
+ * @param string $cache_key Primary cache key
+ * @param callable $api_callback Function to call API
+ * @param int $cache_duration Primary cache duration
+ * @return mixed Cached data, fresh data, or error
+ */
+function flex_videos_get_with_fallback($cache_key, $api_callback, $cache_duration = HOUR_IN_SECONDS) {
+    // Try to get fresh cached data first
+    $cached_data = get_transient($cache_key);
+    if ($cached_data !== false) {
+        // Cache hit - log it
+        flex_videos_log_cache_hit($cache_key, true);
+        return $cached_data;
+    }
+    
+    // Cache miss - log it and try API call
+    flex_videos_log_cache_hit($cache_key, false);
+    $api_result = $api_callback();
+    
+    if (is_wp_error($api_result)) {
+        // Check if it's a 304 Not Modified response
+        if ($api_result->get_error_code() === 'not_modified') {
+            // Data hasn't changed, extend the current cache
+            $cached_data = get_transient($cache_key);
+            if ($cached_data !== false) {
+                // Extend cache duration
+                set_transient($cache_key, $cached_data, $cache_duration);
+                return $cached_data;
+            }
+        }
+        
+        // API failed - check for stale cache as fallback
+        $stale_key = $cache_key . '_stale';
+        $stale_data = get_transient($stale_key);
+        if ($stale_data !== false) {
+            error_log('Flex Videos: Using stale cache due to API failure: ' . $api_result->get_error_message());
+            return $stale_data;
+        }
+        
+        // No fallback available
+        return $api_result;
+    }
+    
+    // Success - store fresh data and stale backup
+    $response_code = wp_remote_retrieve_response_code($api_result);
+    if ($response_code === 200) {
+        $response_body = wp_remote_retrieve_body($api_result);
+        $data = json_decode($response_body, true);
+        
+        if ($data) {
+            // Store primary cache
+            set_transient($cache_key, $data, $cache_duration);
+            // Store stale backup with longer duration
+            set_transient($cache_key . '_stale', $data, WEEK_IN_SECONDS);
+            return $data;
+        }
+    }
+    
+    return new WP_Error('api_error', __('Failed to parse API response.', 'flex-videos'));
+}
+
+/**
+ * Background cache warming functionality
+ */
+function flex_videos_schedule_cache_warming() {
+    if (!wp_next_scheduled('flex_videos_warm_cache')) {
+        wp_schedule_event(time(), 'hourly', 'flex_videos_warm_cache');
+    }
+}
+add_action('init', 'flex_videos_schedule_cache_warming');
+
+/**
+ * Warm critical cache data in the background
+ */
+function flex_videos_warm_cache() {
+    $api_key = get_option('flex_videos_api_key');
+    $channel_id = get_option('flex_videos_channel_id');
+    
+    if (!$api_key || !$channel_id) {
+        return;
+    }
+    
+    // Check if we're approaching quota limits
+    $api_usage = flex_videos_get_api_usage();
+    if ($api_usage['quota_percentage'] > 90) {
+        error_log('Flex Videos: Skipping cache warming due to high API usage');
+        return;
+    }
+    
+    // Warm channel info cache if it's about to expire
+    $channel_cache_key = 'flex_videos_channel_info_' . $channel_id;
+    $channel_ttl = flex_videos_get_cache_ttl($channel_cache_key);
+    
+    if ($channel_ttl !== false && $channel_ttl < HOUR_IN_SECONDS) {
+        // Channel cache expires soon, refresh it
+        $channel_api_url = sprintf(
+            'https://www.googleapis.com/youtube/v3/channels?part=snippet&fields=items(snippet(title,description,customUrl))&id=%s&key=%s',
+            $channel_id,
+            $api_key
+        );
+        
+        $response = flex_videos_api_request($channel_api_url);
+        if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
+            $channel_data = json_decode(wp_remote_retrieve_body($response), true);
+            if (!empty($channel_data['items'][0]['snippet'])) {
+                $channel_info = [
+                    'title' => $channel_data['items'][0]['snippet']['title'],
+                    'description' => $channel_data['items'][0]['snippet']['description'],
+                    'customUrl' => $channel_data['items'][0]['snippet']['customUrl'] ?? '',
+                ];
+                set_transient($channel_cache_key, $channel_info, FLEX_VIDEOS_CHANNEL_CACHE_DURATION);
+                set_transient($channel_cache_key . '_stale', $channel_info, WEEK_IN_SECONDS);
+                error_log('Flex Videos: Successfully warmed channel cache');
+            }
+        }
+    }
+    
+    // Warm video cache for default grid
+    $cache_version = get_option('flex_videos_cache_version', 1);
+    $video_cache_key = 'flex_videos_search_cache_' . md5('_v' . $cache_version);
+    $video_ttl = flex_videos_get_cache_ttl($video_cache_key);
+    
+    if ($video_ttl !== false && $video_ttl < HOUR_IN_SECONDS) {
+        // Video cache expires soon, refresh it
+        $api_url = sprintf(
+            'https://www.googleapis.com/youtube/v3/search?part=snippet&fields=items(id/videoId,snippet(title,description,thumbnails))&channelId=%s&order=date&type=video&maxResults=15&key=%s',
+            $channel_id,
+            $api_key
+        );
+        
+        $response = flex_videos_api_request($api_url);
+        if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
+            $api_data = json_decode(wp_remote_retrieve_body($response), true);
+            if ($api_data) {
+                set_transient($video_cache_key, $api_data, FLEX_VIDEOS_VIDEO_CACHE_DURATION);
+                set_transient($video_cache_key . '_stale', $api_data, WEEK_IN_SECONDS);
+                error_log('Flex Videos: Successfully warmed video cache');
+            }
+        }
+    }
+}
+add_action('flex_videos_warm_cache', 'flex_videos_warm_cache');
+
+/**
+ * Get remaining TTL for a transient
+ * 
+ * @param string $transient_key Transient key
+ * @return int|false TTL in seconds or false if not found
+ */
+function flex_videos_get_cache_ttl($transient_key) {
+    global $wpdb;
+    
+    $transient_timeout = '_transient_timeout_' . $transient_key;
+    $timeout = $wpdb->get_var($wpdb->prepare(
+        "SELECT option_value FROM {$wpdb->options} WHERE option_name = %s",
+        $transient_timeout
+    ));
+    
+    if ($timeout === null) {
+        return false;
+    }
+    
+    $ttl = $timeout - time();
+    return max(0, $ttl);
+}
+
+/**
+ * Clear cache warming on plugin deactivation
+ */
+function flex_videos_clear_scheduled_events() {
+    wp_clear_scheduled_hook('flex_videos_warm_cache');
+}
+register_deactivation_hook(__FILE__, 'flex_videos_clear_scheduled_events');
+
+/**
+ * Cache health monitoring and metrics
+ */
+function flex_videos_get_cache_metrics() {
+    $channel_id = get_option('flex_videos_channel_id');
+    $cache_version = get_option('flex_videos_cache_version', 1);
+    
+    $metrics = [
+        'channel_cache' => [],
+        'video_cache' => [],
+        'stale_caches' => [],
+        'api_usage' => flex_videos_get_api_usage(),
+        'cache_health' => 'healthy'
+    ];
+    
+    // Check channel cache
+    $channel_key = 'flex_videos_channel_info_' . $channel_id;
+    $channel_data = get_transient($channel_key);
+    $channel_ttl = flex_videos_get_cache_ttl($channel_key);
+    
+    $metrics['channel_cache'] = [
+        'status' => $channel_data !== false ? 'cached' : 'empty',
+        'ttl' => $channel_ttl,
+        'ttl_hours' => $channel_ttl ? round($channel_ttl / HOUR_IN_SECONDS, 1) : 0,
+        'has_stale' => get_transient($channel_key . '_stale') !== false
+    ];
+    
+    // Check video cache
+    $video_key = 'flex_videos_search_cache_' . md5('_v' . $cache_version);
+    $video_data = get_transient($video_key);
+    $video_ttl = flex_videos_get_cache_ttl($video_key);
+    
+    $metrics['video_cache'] = [
+        'status' => $video_data !== false ? 'cached' : 'empty',
+        'ttl' => $video_ttl,
+        'ttl_hours' => $video_ttl ? round($video_ttl / HOUR_IN_SECONDS, 1) : 0,
+        'has_stale' => get_transient($video_key . '_stale') !== false,
+        'video_count' => is_array($video_data) ? count($video_data['items'] ?? []) : 0
+    ];
+    
+    // Overall health assessment
+    $health_issues = [];
+    
+    if ($metrics['api_usage']['quota_percentage'] > 90) {
+        $health_issues[] = 'high_api_usage';
+    }
+    
+    if ($metrics['channel_cache']['status'] === 'empty' && !$metrics['channel_cache']['has_stale']) {
+        $health_issues[] = 'missing_channel_cache';
+    }
+    
+    if ($metrics['video_cache']['status'] === 'empty' && !$metrics['video_cache']['has_stale']) {
+        $health_issues[] = 'missing_video_cache';
+    }
+    
+    if (!empty($health_issues)) {
+        $metrics['cache_health'] = 'warning';
+        $metrics['health_issues'] = $health_issues;
+    }
+    
+    return $metrics;
+}
+
+/**
+ * Log cache performance metrics
+ */
+function flex_videos_log_cache_hit($cache_key, $hit = true) {
+    $stats_key = 'flex_videos_cache_stats_' . date('Ymd');
+    $stats = get_transient($stats_key) ?: ['hits' => 0, 'misses' => 0, 'total' => 0];
+    
+    if ($hit) {
+        $stats['hits']++;
+    } else {
+        $stats['misses']++;
+    }
+    $stats['total']++;
+    
+    set_transient($stats_key, $stats, DAY_IN_SECONDS);
+}
+
+/**
+ * Get cache performance statistics
+ */
+function flex_videos_get_cache_stats() {
+    $today_key = 'flex_videos_cache_stats_' . date('Ymd');
+    $yesterday_key = 'flex_videos_cache_stats_' . date('Ymd', strtotime('-1 day'));
+    
+    $today_stats = get_transient($today_key) ?: ['hits' => 0, 'misses' => 0, 'total' => 0];
+    $yesterday_stats = get_transient($yesterday_key) ?: ['hits' => 0, 'misses' => 0, 'total' => 0];
+    
+    return [
+        'today' => array_merge($today_stats, [
+            'hit_rate' => $today_stats['total'] > 0 ? round(($today_stats['hits'] / $today_stats['total']) * 100, 1) : 0
+        ]),
+        'yesterday' => array_merge($yesterday_stats, [
+            'hit_rate' => $yesterday_stats['total'] > 0 ? round(($yesterday_stats['hits'] / $yesterday_stats['total']) * 100, 1) : 0
+        ])
+    ];
+}
 
 function flex_videos_add_admin_menu() {
     add_options_page(
@@ -343,8 +734,121 @@ function flex_videos_settings_page_html() {
             </p>
         </form>
         <hr>
-        <h2><?php esc_html_e('Cache Management', 'flex-videos'); ?></h2>
-        <p><?php esc_html_e('The plugin caches YouTube results for 1 hour to improve performance. You can manually clear this cache using the button below.', 'flex-videos'); ?></p>
+        <h2><?php esc_html_e('Cache Management & API Usage', 'flex-videos'); ?></h2>
+        <p><?php esc_html_e('The plugin uses optimized caching with different durations: Channel info (12 hours), Videos (2 hours), Search results (30 minutes).', 'flex-videos'); ?></p>
+        
+        <?php 
+        // Display comprehensive cache health and metrics
+        $cache_metrics = flex_videos_get_cache_metrics();
+        $cache_stats = flex_videos_get_cache_stats();
+        ?>
+        
+        <!-- Cache Health Overview -->
+        <div style="background: <?php echo $cache_metrics['cache_health'] === 'healthy' ? '#d1e7dd' : '#fff3cd'; ?>; padding: 15px; border-left: 4px solid <?php echo $cache_metrics['cache_health'] === 'healthy' ? '#0f5132' : '#664d03'; ?>; margin: 15px 0;">
+            <h4 style="margin-top: 0;">
+                <?php esc_html_e('Cache Health Status:', 'flex-videos'); ?> 
+                <span style="color: <?php echo $cache_metrics['cache_health'] === 'healthy' ? '#0f5132' : '#664d03'; ?>;">
+                    <?php echo $cache_metrics['cache_health'] === 'healthy' ? '✅ ' . __('Healthy', 'flex-videos') : '⚠️ ' . __('Needs Attention', 'flex-videos'); ?>
+                </span>
+            </h4>
+            
+            <?php if (!empty($cache_metrics['health_issues'])): ?>
+                <p><strong><?php esc_html_e('Issues Detected:', 'flex-videos'); ?></strong></p>
+                <ul style="margin-left: 20px;">
+                    <?php foreach ($cache_metrics['health_issues'] as $issue): ?>
+                        <li>
+                            <?php
+                            switch ($issue) {
+                                case 'high_api_usage':
+                                    esc_html_e('High API usage - consider clearing cache', 'flex-videos');
+                                    break;
+                                case 'missing_channel_cache':
+                                    esc_html_e('Channel cache missing - will refresh on next request', 'flex-videos');
+                                    break;
+                                case 'missing_video_cache':
+                                    esc_html_e('Video cache missing - will refresh on next request', 'flex-videos');
+                                    break;
+                            }
+                            ?>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+        </div>
+        
+        <!-- API Usage Statistics -->
+        <div style="background: #f9f9f9; padding: 15px; border-left: 4px solid #0073aa; margin: 15px 0;">
+            <h4 style="margin-top: 0;"><?php esc_html_e('API Usage & Performance', 'flex-videos'); ?></h4>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px;">
+                <div>
+                    <strong><?php esc_html_e('Current Hour API Usage:', 'flex-videos'); ?></strong><br>
+                    <?php echo esc_html($cache_metrics['api_usage']['current_hour_calls']); ?> / <?php echo esc_html($cache_metrics['api_usage']['max_calls_per_hour']); ?> 
+                    (<?php echo esc_html($cache_metrics['api_usage']['quota_percentage']); ?>%)<br>
+                    <small><?php echo esc_html($cache_metrics['api_usage']['remaining_calls']); ?> <?php esc_html_e('calls remaining', 'flex-videos'); ?></small>
+                </div>
+                
+                <div>
+                    <strong><?php esc_html_e('Cache Performance:', 'flex-videos'); ?></strong><br>
+                    <?php esc_html_e('Today:', 'flex-videos'); ?> <?php echo esc_html($cache_stats['today']['hit_rate']); ?>% <?php esc_html_e('hit rate', 'flex-videos'); ?> 
+                    (<?php echo esc_html($cache_stats['today']['hits']); ?> hits / <?php echo esc_html($cache_stats['today']['total']); ?> total)<br>
+                    <small><?php esc_html_e('Yesterday:', 'flex-videos'); ?> <?php echo esc_html($cache_stats['yesterday']['hit_rate']); ?>% <?php esc_html_e('hit rate', 'flex-videos'); ?></small>
+                </div>
+            </div>
+            
+            <?php if ($cache_metrics['api_usage']['quota_percentage'] > 80): ?>
+                <p style="color: #d63384; margin-top: 15px;">
+                    <strong><?php esc_html_e('Warning:', 'flex-videos'); ?></strong>
+                    <?php esc_html_e('High API usage detected. Consider clearing cache or reducing requests.', 'flex-videos'); ?>
+                </p>
+            <?php endif; ?>
+        </div>
+        
+        <!-- Cache Status Details -->
+        <div style="background: #f9f9f9; padding: 15px; border-left: 4px solid #6c757d; margin: 15px 0;">
+            <h4 style="margin-top: 0;"><?php esc_html_e('Cache Status Details', 'flex-videos'); ?></h4>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <strong><?php esc_html_e('Channel Cache:', 'flex-videos'); ?></strong><br>
+                    <?php 
+                    $status_color = $cache_metrics['channel_cache']['status'] === 'cached' ? '#0f5132' : '#d63384';
+                    $status_text = $cache_metrics['channel_cache']['status'] === 'cached' ? __('Cached', 'flex-videos') : __('Empty', 'flex-videos');
+                    ?>
+                    <span style="color: <?php echo $status_color; ?>;">●</span> <?php echo esc_html($status_text); ?><br>
+                    
+                    <?php if ($cache_metrics['channel_cache']['ttl_hours'] > 0): ?>
+                        <small><?php esc_html_e('Expires in:', 'flex-videos'); ?> <?php echo esc_html($cache_metrics['channel_cache']['ttl_hours']); ?> <?php esc_html_e('hours', 'flex-videos'); ?></small><br>
+                    <?php endif; ?>
+                    
+                    <?php if ($cache_metrics['channel_cache']['has_stale']): ?>
+                        <small style="color: #6c757d;">✓ <?php esc_html_e('Stale backup available', 'flex-videos'); ?></small>
+                    <?php endif; ?>
+                </div>
+                
+                <div>
+                    <strong><?php esc_html_e('Video Cache:', 'flex-videos'); ?></strong><br>
+                    <?php 
+                    $status_color = $cache_metrics['video_cache']['status'] === 'cached' ? '#0f5132' : '#d63384';
+                    $status_text = $cache_metrics['video_cache']['status'] === 'cached' ? __('Cached', 'flex-videos') : __('Empty', 'flex-videos');
+                    ?>
+                    <span style="color: <?php echo $status_color; ?>;">●</span> <?php echo esc_html($status_text); ?>
+                    
+                    <?php if ($cache_metrics['video_cache']['video_count'] > 0): ?>
+                        (<?php echo esc_html($cache_metrics['video_cache']['video_count']); ?> <?php esc_html_e('videos', 'flex-videos'); ?>)
+                    <?php endif; ?><br>
+                    
+                    <?php if ($cache_metrics['video_cache']['ttl_hours'] > 0): ?>
+                        <small><?php esc_html_e('Expires in:', 'flex-videos'); ?> <?php echo esc_html($cache_metrics['video_cache']['ttl_hours']); ?> <?php esc_html_e('hours', 'flex-videos'); ?></small><br>
+                    <?php endif; ?>
+                    
+                    <?php if ($cache_metrics['video_cache']['has_stale']): ?>
+                        <small style="color: #6c757d;">✓ <?php esc_html_e('Stale backup available', 'flex-videos'); ?></small>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        
         <form method="post" action="">
             <?php wp_nonce_field('flex_videos_clear_cache', 'flex_videos_cache_nonce'); ?>
             <p>
@@ -395,71 +899,93 @@ function flex_videos_grid_shortcode($atts) {
     $cache_version = get_option('flex_videos_cache_version', 1);
     $transient_key = 'flex_videos_search_cache_' . md5($hashtag . '_v' . $cache_version);
     $cached_data = get_transient($transient_key);
-    // Fetch channel info (name and description)
-    $channel_info = get_transient('flex_videos_channel_info_' . $channel_id);
-    if ($channel_info === false && $api_key && $channel_id) {
-        $channel_api_url = sprintf(
-            'https://www.googleapis.com/youtube/v3/channels?part=snippet&id=%s&key=%s',
-            $channel_id,
-            $api_key
-        );
-        $channel_response = wp_remote_get($channel_api_url);
-        if (!is_wp_error($channel_response) && wp_remote_retrieve_response_code($channel_response) === 200) {
-            $channel_data = json_decode(wp_remote_retrieve_body($channel_response), true);
-            if (!empty($channel_data['items'][0]['snippet'])) {
-                $channel_info = [
-                    'title' => $channel_data['items'][0]['snippet']['title'],
-                    'description' => $channel_data['items'][0]['snippet']['description'],
-                    'customUrl' => $channel_data['items'][0]['snippet']['customUrl'] ?? '',
-                ];
-                set_transient('flex_videos_channel_info_' . $channel_id, $channel_info, HOUR_IN_SECONDS);
+    // Fetch channel info (name and description) with fallback support
+    $channel_cache_key = 'flex_videos_channel_info_' . $channel_id;
+    $channel_info = flex_videos_get_with_fallback(
+        $channel_cache_key,
+        function() use ($channel_id, $api_key) {
+            if (!$api_key || !$channel_id) {
+                return new WP_Error('missing_credentials', __('API key or channel ID missing.', 'flex-videos'));
             }
+            
+            $channel_api_url = sprintf(
+                'https://www.googleapis.com/youtube/v3/channels?part=snippet&fields=items(snippet(title,description,customUrl))&id=%s&key=%s',
+                $channel_id,
+                $api_key
+            );
+            return flex_videos_api_request($channel_api_url);
+        },
+        FLEX_VIDEOS_CHANNEL_CACHE_DURATION
+    );
+    
+    // Parse channel info from API response or use cached data
+    if (is_array($channel_info) && !is_wp_error($channel_info)) {
+        // Data is already parsed (from cache)
+        if (isset($channel_info['title'])) {
+            // Already processed channel info
+        } else if (isset($channel_info['items'][0]['snippet'])) {
+            // Raw API response, parse it
+            $snippet = $channel_info['items'][0]['snippet'];
+            $channel_info = [
+                'title' => $snippet['title'],
+                'description' => $snippet['description'],
+                'customUrl' => $snippet['customUrl'] ?? '',
+            ];
+            // Update cache with parsed data
+            set_transient($channel_cache_key, $channel_info, FLEX_VIDEOS_CHANNEL_CACHE_DURATION);
+            set_transient($channel_cache_key . '_stale', $channel_info, WEEK_IN_SECONDS);
         }
+    } else {
+        // API failed and no fallback available
+        $channel_info = [];
     }
     $channel_title = $channel_info['title'] ?? __('Latest Videos', 'flex-videos');
     $channel_description = $channel_info['description'] ?? '';
     $channel_custom_url = $channel_info['customUrl'] ?? '';
-    if (false === $cached_data) {
-        if (empty($hashtag)) {
-            $api_url = sprintf(
-                'https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=%s&order=date&type=video&maxResults=50&key=%s',
-                $channel_id,
-                $api_key
-            );
-        } else {
-            $search_query = urlencode($hashtag);
-            $api_url = sprintf(
-                'https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=%s&q=%s&order=date&type=video&maxResults=50&key=%s',
-                $channel_id,
-                $search_query,
-                $api_key
-            );
-        }
-        $response = wp_remote_get($api_url);
-        if (is_wp_error($response)) {
-            if (current_user_can('manage_options')) {
-                // translators: %s is the error message from the API request
-                return sprintf(__('Error: API request failed - %s', 'flex-videos'), $response->get_error_message());
+    // Fetch video data with fallback support
+    $video_data = flex_videos_get_with_fallback(
+        $transient_key,
+        function() use ($hashtag, $channel_id, $api_key, $max_to_display) {
+            if (!$api_key || !$channel_id) {
+                return new WP_Error('missing_credentials', __('API key or channel ID missing.', 'flex-videos'));
             }
-            return '';
-        }
-        $response_code = wp_remote_retrieve_response_code($response);
-        if ($response_code !== 200) {
-            if (current_user_can('manage_options')) {
-                $response_body = wp_remote_retrieve_body($response);
-                $error_data = json_decode($response_body, true);
-                $error_message = $error_data['error']['message'] ?? __('Unknown API error', 'flex-videos');
-                // translators: %1$s is the response code, %2$s is the error message
-                return sprintf(__('Error: YouTube API returned %1$s - %2$s', 'flex-videos'), $response_code, $error_message);
+            
+            // Calculate optimal maxResults based on actual needs plus small buffer
+            $optimal_max_results = min($max_to_display + 5, 50);
+            
+            if (empty($hashtag)) {
+                // Optimized API URL with selective fields and dynamic maxResults
+                $api_url = sprintf(
+                    'https://www.googleapis.com/youtube/v3/search?part=snippet&fields=items(id/videoId,snippet(title,description,thumbnails))&channelId=%s&order=date&type=video&maxResults=%d&key=%s',
+                    $channel_id,
+                    $optimal_max_results,
+                    $api_key
+                );
+            } else {
+                $search_query = urlencode($hashtag);
+                $api_url = sprintf(
+                    'https://www.googleapis.com/youtube/v3/search?part=snippet&fields=items(id/videoId,snippet(title,description,thumbnails))&channelId=%s&q=%s&order=date&type=video&maxResults=%d&key=%s',
+                    $channel_id,
+                    $search_query,
+                    $optimal_max_results,
+                    $api_key
+                );
             }
-            return '';
+            return flex_videos_api_request($api_url);
+        },
+        empty($hashtag) ? FLEX_VIDEOS_VIDEO_CACHE_DURATION : FLEX_VIDEOS_SEARCH_CACHE_DURATION
+    );
+    
+    // Extract videos from response or cached data
+    if (is_wp_error($video_data)) {
+        if (current_user_can('manage_options')) {
+            // translators: %s is the error message from the API request
+            return sprintf(__('Error: API request failed - %s', 'flex-videos'), $video_data->get_error_message());
         }
-        $api_data = json_decode(wp_remote_retrieve_body($response), true);
-        set_transient($transient_key, $api_data, HOUR_IN_SECONDS);
-        $videos = $api_data['items'] ?? [];
-    } else {
-        $videos = $cached_data['items'] ?? [];
+        return '';
     }
+    
+    $videos = $video_data['items'] ?? [];
     if (empty($videos)) {
         return '<p>' . __('No videos found for this channel.', 'flex-videos') . '</p>';
     }
@@ -597,11 +1123,17 @@ function flex_videos_test_api_key() {
             return;
         }
         $test_url = sprintf(
-            'https://www.googleapis.com/youtube/v3/channels?part=snippet&id=%s&key=%s',
+            'https://www.googleapis.com/youtube/v3/channels?part=snippet&fields=items(snippet(title))&id=%s&key=%s',
             $channel_id,
             $api_key
         );
-        $response = wp_remote_get($test_url);
+        $response = flex_videos_api_request($test_url);
+        if (is_wp_error($response)) {
+            add_action('admin_notices', function() use ($response) {
+                echo '<div class="notice notice-error is-dismissible"><p>' . sprintf(esc_html__('API Error: %s', 'flex-videos'), esc_html($response->get_error_message())) . '</p></div>';
+            });
+            return;
+        }
         $response_code = wp_remote_retrieve_response_code($response);
         if ($response_code === 200) {
             $data = json_decode(wp_remote_retrieve_body($response), true);
